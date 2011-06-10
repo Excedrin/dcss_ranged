@@ -3062,6 +3062,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return nil
 : end
 
+: function spell_hunger(spell)
+:   local hunger = {50, 95, 160, 250, 350, 550, 700, 860, 1000}
+:   if p.spell_info[spell] then
+:      return hunger[p.spell_info[spell][3]]
+:           - you.intelligence() * you.skill("Spellcasting")
+:   else
+:       return -1
+:   end
+: end
+
 : -- nolof true -> we don't have clear LOF to target,
 : -- only cast smite targetable or summons
 : function pick_spell(x,y,m,nolof)
@@ -3081,7 +3091,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     crawl.mpr("mons:" .. m:type() .. " has no monster info!")
 :   end
 :   -- crawl.mpr("prefer: " .. tostring(pref))
-:   local options = {}
+:   local options = {} -- index, power, target resists, spell level
 :   local dist = spl_dist(x,y)
 :   for i,n in pairs(you.spells()) do
 : --    crawl.mpr("consider spell: " .. i .. " ".. n)
