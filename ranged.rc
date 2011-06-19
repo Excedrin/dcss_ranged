@@ -875,7 +875,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     p.potion_choice = "healing"
 :     return
 :   end
-:   danger = assess_danger()
+:   local danger = assess_danger()
 :   local dist = monster_distance()
 :   local x,y,m = get_target()
 :   local spell = pick_spell(x,y,m)
@@ -1032,7 +1032,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     p.move = "autotravel"
 :     if p.travel_goal == "next level" then
 :       if have_useless() > 0 then
-:         p.move = "drop p.useless"
+:         p.move = "drop useless"
 :       elseif have_amulet() then
 :         p.move = "wear amulet"
 :       elseif have_ring() then
@@ -1127,7 +1127,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     step_towards_lair()
 :   elseif p.move == "autotravel" then
 :     autotravel()
-:   elseif p.move == "drop p.useless" then
+:   elseif p.move == "drop useless" then
 :     drop_useless()
 :   elseif p.move == "try potion" then
 :     try_potion()
@@ -1536,9 +1536,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function read_teleport(i)
 :   local l = items.index_to_letter(i)
 :   if wearing_ctele() then
-:     crawl.sendkeys('r' .. l .. 'sssss' .. string.char(32) .. 'N<' .. string.char(13))
+:     magic('r' .. l .. 'sssss' .. string.char(32) .. 'N<' .. string.char(13))
 :   else
-:     crawl.sendkeys('r' .. l)
+:     magic('r' .. l)
 :   end
 : end
 
@@ -1563,7 +1563,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if not (x == 0 and y == 0) then
 :     local line = drawline(0,0,x,y)
 :     local linestr = walkline(line)
-:     crawl.sendkeys('r' .. l .. linestr .. string.char(13))
+:     magic('r' .. l .. linestr .. string.char(13))
 :   end
 : end
 
@@ -2515,7 +2515,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   crawl.mpr("gcinfo: "..gcinfo())
 :   update_stuff()
 :   choose_move()
-:   make_move()
+:   crawl.mpr("would: " .. p.move)
+:   --make_move()
 : end
 
 : function s_interrupt_macro(interrupt_name)
@@ -2534,7 +2535,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Throw Flame"] = {7,7,2,50, {"Fire Magic", "Conjurations"}, false, true},
 :    ["Sticky Flame"] = {1,1,4,100, {"Fire Magic", "Conjurations"}, true, true},
 :    ["Bolt of Fire"] = {6,6,6,200, {"Fire Magic", "Conjurations"}, false, true},
-:    ["Fireball"] = {8,8,6,200, {"Fire Magic", "Conjurations"}, true, true},
+:    ["Fireball"] = {6,6,6,200, {"Fire Magic", "Conjurations"}, true, true},
 :    ["Bolt of Magma"] = {5,5,5,200, {"Fire Magic", "Earth Magic", "Conjurations"}, false, true},
 :    ["Stone Arrow"] = {5,5,3,50, {"Earth Magic", "Conjurations"}, false, true},
 :    ["Sandblast"] = {2,2,1,50, {"Earth Magic"}, false, true},
@@ -2674,7 +2675,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 : end
 
-: -- this doesn't take Vehumet's range increase into account
 : function spell_range(spell, pow)
 :   if not p.spell_info[spell] then
 :     return 0
@@ -2684,6 +2684,25 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local cap = p.spell_info[spell][4]
 :   if spell == "Sandblast" and items.equipped_at(0) and
 :      string.find(items.equipped_at(0).name(),"stone") then
+:     minrange = minrange + 1
+:     maxrange = maxrange + 1
+:   end
+:   -- this should check that the spell is either conjuration or summoning
+:   -- or that it's shatter, LRD, sandblast, airstrike, tornado, freeze
+:   -- ignite poison, ozo's refrig
+:   -- see godabil.cc 1455
+:   -- but it's close enough anyway
+:   local vehsupports = { "Shatter","Lee's Rapid Deconstruction", "Sandblast",
+:           "Airstrike", "Tornado", "Freeze", "Ignite Poison",
+:           "Ozocubu's Refrigeration" }
+:   local spellschools = p.spell_info[spell][5]
+:   if you.god() == "Vehumet"
+:       and (util.contains(spellschools, "Conjuration")
+:        or util.contains(spellschools, "Summoning"))
+:       and util.contains(vehsupports, spell)
+:       and maxrange > 0 and maxrange < 8
+:       and minrange > 0 and minrange < 8
+:       and spell ~= "Sticky Flame" and spell ~= "Freeze" then
 :     minrange = minrange + 1
 :     maxrange = maxrange + 1
 :   end
@@ -3037,10 +3056,29 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Mephitic Cloud"
 :   end
 :
-:   if getresist(mi, "Fire Magic") < 3 and not adjacent(x,y)
-:       and (threat > 300)
+:   local count = 0
+:   for k,v in pairs(p.currentmonsters) do
+:       local dist = distance(v[2],v[3],x,y)
+:       if dist == 1 then
+:          count = count + 1
+:       end
+:   end
+:   crawl.mpr("count: " .. count)
+:   -- p.currentmonsters
+:   if getresist(mi, "Fire Magic") < 1 and not adjacent(x,y)
+:       and ((p.currentthreat > 500) or spell_hunger("Fireball") <= 0)
+:       and count > 1
 :       and util.contains(you.spells(),"Fireball") then
 :      return "Fireball"
+:   end
+:
+:   -- not sure how to avoid getting poisoned other than actually figuring
+:   -- out how many squares it will fill, trying distance for now
+:   -- targeting for this won't be optimal either
+:   if getresist(mi, "Poison Magic") < 1 and travel_distance(x,y) > 4
+:       and count >= 1
+:       and util.contains(you.spells(),"Poisonous Cloud") then
+:      return "Poisonous Cloud"
 :   end
 :
 :   if summoner() then
@@ -3065,11 +3103,22 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function spell_hunger(spell)
 :   local hunger = {50, 95, 160, 250, 350, 550, 700, 860, 1000}
 :   if p.spell_info[spell] then
-:      return hunger[p.spell_info[spell][3]]
-:           - you.intelligence() * you.skill("Spellcasting")
+:      return math.max(0, hunger[p.spell_info[spell][3]]
+:           - you.intelligence() * you.skill("Spellcasting"))
 :   else
 :       return -1
 :   end
+: end
+
+: function have_smite()
+:   for i,n in pairs(you.spells()) do
+:     local info = p.spell_info[n]
+:     if info and (not info[6]) and (not info[7]) then
+:       crawl.mpr("smite spell:" .. n)
+:       return true
+:     end
+:   end
+:   return false
 : end
 
 : -- nolof true -> we don't have clear LOF to target,
@@ -3116,16 +3165,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           then
 :         -- got enough mp and it's in range
 :         -- crawl.mpr("castable: " .. n)
-:         options[n] = { i, pow, 0, info[3] }
+:         options[n] = { i, pow, 0, info[3], spell_hunger(i) }
 :         for k,v in pairs(spellschools) do
 :           if p.school_to_resist[v] then
 : --            crawl.mpr("res: " .. p.school_to_resist[v])
-:             options[n] = { i, pow, getresist(mi, v), info[3] }
+:             options[n] = { i, pow, getresist(mi, v), info[3], spell_hunger(i) }
 :           end
 :         end
-:         if pref == n then -- ignore resists
+:         if pref == n then -- ignore resists and hunger
 :            crawl.mpr("prefer: " .. n)
-:            options[n] = { i, pow + 40, 0, info[3] }
+:            options[n] = { i, pow + 40, 0, info[3], 0 }
 :         end
 :       end
 :     end
@@ -3134,8 +3183,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local best = 0
 :   local bestk = nil
 :   for k,v in pairs(options) do
-:     local x = v[2] - 20 * v[3]
-:     crawl.mpr(k .. ": " .. x .." ".. v[3])
+:     local x = v[2] - 20 * v[3] + (30 * v[4] - v[5])
+:     crawl.mpr(k .. ": " .. x)
 :     if x > best then
 :       best = x
 :       bestk = k
@@ -3260,7 +3309,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     end
 :   else
 :     local x,y,m = get_target()
-:     if summoner() and m then
+:     if m and (summoner() or have_smite()) then
 :       local didcast = cast_spell(x,y,m,true)
 :     else
 :       crawl.mpr("no target?")
