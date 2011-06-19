@@ -2530,6 +2530,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.spell_info = {
 : -- {{{1
 :    ["Magic Dart"] = {8,8,1,25, {"Conjurations"}, false, true},
+:    ["Apportation"] = {8,8,1,1000, {"Translocation"}, true, false},
 :    ["Iskenderun's Mystic Blast"] = {5,5,4,100, {"Conjurations"}, false, true},
 :    ["Flame Tongue"] = {1,4,1,40, {"Fire Magic", "Conjurations"}, false, true},
 :    ["Throw Flame"] = {7,7,2,50, {"Fire Magic", "Conjurations"}, false, true},
