@@ -2696,7 +2696,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           "Airstrike", "Tornado", "Freeze", "Ignite Poison",
 :           "Ozocubu's Refrigeration" }
 :   local spellschools = p.spell_info[spell][5]
-:   if you.god() == "Vehumet" and you.piety_rank() >= 4
+:   if you.god() == "Vehumet" and you.piety_rank() >= 3
 :       and (util.contains(spellschools, "Conjuration")
 :        or util.contains(spellschools, "Summoning"))
 :       and util.contains(vehsupports, spell)
