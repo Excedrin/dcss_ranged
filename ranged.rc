@@ -2515,8 +2515,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   crawl.mpr("gcinfo: "..gcinfo())
 :   update_stuff()
 :   choose_move()
-:   crawl.mpr("would: " .. p.move)
-:   --make_move()
+:   --crawl.mpr("would: " .. p.move)
+:   make_move()
 : end
 
 : function s_interrupt_macro(interrupt_name)
