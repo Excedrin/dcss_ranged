@@ -747,6 +747,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- # checks for changes
 
 : function update_stuff()
+:   if you.turns() == p.last_turn then
+:       return
+:   end
 :   if you.turns() >= 1000*p.dump_count then
 :     p.dump_count = p.dump_count+1
 :     crawl.mpr("dumping in update stuff: " .. p.dump_count)
@@ -1474,9 +1477,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function get_target(clearlof)
-:   if you.turns() ~= p.last_turn then
-:       update_stuff()
-:   end
+:   update_stuff()
+:
 :   local m,x,y
 :   if clearlof then
 :       if p.best2idx then
@@ -1608,10 +1610,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function read_blink(i)
+:   update_stuff()
 :   local l = items.index_to_letter(i)
-:   if you.turns() ~= p.last_turn then
-:     update_stuff()
-:   end
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
 :     local line = drawline(0,0,x,y)
@@ -1838,9 +1838,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function blink_away()
-:   if you.turns() ~= p.last_turn then
-:       update_stuff()
-:   end
+:   update_stuff()
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
 :       local line = drawline(0,0,x,y)
@@ -3323,19 +3321,59 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :  p.MB[v] = i - 1
 : end --}}}
 
+:-- [433]={name="Jozef", speed=10, hd=11, hplow=90, hphigh=90, ac=0, ev=9, attacks={ {dam=18, type="plain"} }, flags={ "spellcaster" }, resists={ magic=73 }, corpse="contaminated", xp=1666, spells={ {"teleport other", "minor healing", "b.venom", "slow"} }},
+: -- 0 MDAM_OKAY
+: -- 1 MDAM_LIGHTLY_DAMAGED
+: -- 2 MDAM_MODERATELY_DAMAGED    mhp * 3 / 4
+: -- 3 MDAM_HEAVILY_DAMAGED       mhp / 3
+: -- 4 MDAM_SEVERELY_DAMAGED      mhp / 4
+: -- 5 MDAM_ALMOST_DEAD           mhp / 6
+: p.mdam = {[0]=1, 0.99, 0.75, 0.33, 0.25, 0.16, 0.01}
 : function mon_info()
-:   local x,y = get_target()
-:   local dist = spl_dist(x,y)
-:   local m = monster.get_monster_at(x, y)
-:   crawl.mpr("target at x: " .. x .. " y: " .. y .. " dist: " .. dist)
-:   if m then
-:     crawl.mpr("m: " .. m:desc()
-:       .. " " .. m:type()
-:       .. " " .. m:base_type()
-:       .. " " .. m:damage_level())
-:     for k,v in pairs(p.MB) do
-:       crawl.mpr(k .. ": " .. tostring(m:is(p.MB[k])))
-:     end
+:   update_stuff()
+:   for k,v in pairs(p.currentmonsters) do
+:       local m = v[1]
+:       local x = v[2]
+:       local y = v[3]
+:       local threat = v[4]
+:       local mi = monster_info[m:type()]
+:       local dist = travel_distance(x,y)
+:       if m then
+:           local hpest1 = mi.hphigh * p.mdam[m:damage_level()-1]
+:           local hpest2 = mi.hphigh * p.mdam[m:damage_level()]
+:           crawl.mpr("m: " .. m:desc()
+:               .. " speed: " .. mi.speed
+:               .. " hd: " .. mi.hd
+:               .. " hp: " .. mi.hplow .. "-" .. mi.hphigh
+:               .. " hp est: " .. hpest2 .. "-" .. hpest1
+:               .. " ac/ev: " .. mi.ac .. "/" .. mi.ev
+:               .. " xp: " .. mi.xp)
+:           --for k,v in pairs(p.MB) do
+:           --    crawl.mpr(k .. ": " .. tostring(m:is(p.MB[k])))
+:           --end
+:           if mi.attacks then
+:               for _,attack in pairs(mi.attacks) do
+:                   crawl.mpr("attacks: ")
+:                   for k,v in pairs(attack) do
+:                       crawl.mpr(k .. " " .. v)
+:                   end
+:               end
+:           end
+:           if mi.resists then
+:               crawl.mpr("resists: ")
+:               for k,v in pairs(mi.resists) do
+:                   crawl.mpr(k .. ": " .. v)
+:               end
+:           end
+:           if mi.spells then
+:               for _,spellset in pairs(mi.spells) do
+:                   crawl.mpr("spell set: ")
+:                   for k,v in pairs(spellset) do
+:                       crawl.mpr(v)
+:                   end
+:               end
+:           end
+:       end
 :   end
 : end
 
