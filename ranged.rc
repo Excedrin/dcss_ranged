@@ -694,6 +694,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 
 : p.bestidx = nil
 : p.best2idx = nil -- clear LOF to this one
+: p.cloudtarget = nil
+
 : p.currentmonsters = {}
 : p.currentthreat = 0
 
@@ -728,6 +730,17 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 :   return not (hunger == "full" or hunger == "not hungry"
 :       or hunger == "very full" or hunger == "completely stuffed")
+: end
+
+: function update_cloud()
+:   p.cloudtarget = nil
+:   if have_cloud() and p.currentmonsters and # p.currentmonsters > 0 then
+:       p.cloudtarget = best_cloud_center(7) -- max cloud range is 6, 7 with veh
+:       local count = p.cloudtarget[1]
+:       local x = p.cloudtarget[2]
+:       local y = p.cloudtarget[3]
+:       crawl.mpr("cloud center: " .. count .." " .. x .. "," .. y)
+:   end
 : end
 
 : -- ###############################################
@@ -794,6 +807,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   p.last_xl = you.xl()
 :
 :   update_monsters()
+:   update_cloud()
 : end
 
 : -- ##############################################
@@ -1420,9 +1434,48 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 : end
 
+: function c_adjmons(i,j,f)
+:   local function count(x,y,r,a)
+:       a = a or 0
+:       if monster.get_monster_at(x+i, y+j) then
+:           a = a + 1
+:       end
+:       return a
+:   end
+:   return radius_iter(1, count)
+: end
+
+: function best_cloud_center(r)
+:   local function count(x,y,r,a)
+:     a = a or {}
+:     a[x] = a[x] or {}
+:     a[x][y] = c_adjmons(x,y)
+:     return a
+:   end
+:   local adjmap = radius_iter(r, count)
+:   local function bestadj(x,y,r,a)
+:       a = a or {0, 0, 0}
+:       if not feature_lof_loc(x,y) then
+:           return a
+:       end
+:       if adjmap[x][y] > a[1] then
+:           a[1] = adjmap[x][y]
+:           a[2] = x
+:           a[3] = y
+:       elseif adjmap[x][y] == a[1] and a[2]
+:           and travel_distance(a[2],a[3]) < travel_distance(x,y) then
+:           a[1] = adjmap[x][y]
+:           a[2] = x
+:           a[3] = y
+:       end
+:       return a
+:   end
+:   return radius_iter(r, bestadj)
+: end
+
 : function get_target(clearlof)
 :   if you.turns() ~= p.last_turn then
-:       update_monsters()
+:       update_stuff()
 :   end
 :   local m,x,y
 :   if clearlof then
@@ -1557,7 +1610,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function read_blink(i)
 :   local l = items.index_to_letter(i)
 :   if you.turns() ~= p.last_turn then
-:     update_monsters()
+:     update_stuff()
 :   end
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
@@ -1786,7 +1839,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 
 : function blink_away()
 :   if you.turns() ~= p.last_turn then
-:       update_monsters()
+:       update_stuff()
 :   end
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
@@ -3057,29 +3110,31 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Mephitic Cloud"
 :   end
 :
-:   local count = 0
-:   for k,v in pairs(p.currentmonsters) do
-:       local dist = distance(v[2],v[3],x,y)
-:       if dist == 1 then
-:          count = count + 1
-:       end
-:   end
-:   crawl.mpr("count: " .. count)
-:   -- p.currentmonsters
-:   if getresist(mi, "Fire Magic") < 1 and not adjacent(x,y)
-:       and ((p.currentthreat > 500) or spell_hunger("Fireball") <= 0)
-:       and count > 1
-:       and util.contains(you.spells(),"Fireball") then
-:      return "Fireball"
-:   end
-:
 :   -- not sure how to avoid getting poisoned other than actually figuring
 :   -- out how many squares it will fill, trying distance for now
 :   -- targeting for this won't be optimal either
-:   if getresist(mi, "Poison Magic") < 1 and travel_distance(x,y) > 4
-:       and count >= 1
+:   if p.cloudtarget
+:       and p.cloudtarget[1] > 1
+:       and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:       and getresist(mi, "Poison Magic") < 1
+:       and not m:is(p.MB.poisoned)
 :       and util.contains(you.spells(),"Poisonous Cloud") then
 :      return "Poisonous Cloud"
+:   end
+:   if p.cloudtarget
+:       and p.cloudtarget[1] > 1
+:       and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:       and getresist(mi, "Ice Magic") < 1
+:       and util.contains(you.spells(),"Freezing Cloud") then
+:      return "Freezing Cloud"
+:   end
+:   -- p.currentmonsters
+:   if p.cloudtarget
+:       and p.cloudtarget[1] > 1
+:       and getresist(mi, "Fire Magic") < 1 and not adjacent(x,y)
+:       and ((p.currentthreat > 500) or spell_hunger("Fireball") <= 0)
+:       and util.contains(you.spells(),"Fireball") then
+:      return "Fireball"
 :   end
 :
 :   if summoner() then
@@ -3109,6 +3164,15 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   else
 :       return -1
 :   end
+: end
+
+: function have_cloud()
+:   for i,n in pairs(you.spells()) do
+:       if string.find(n, "Cloud") then
+:           return true
+:       end
+:   end
+:   return false
 : end
 
 : function have_smite()
@@ -3220,6 +3284,11 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       if p.spell_info[pick][1] == -1 then
 :         spc = "z" .. string.char(96 + idx)
 :       else
+:         if p.cloudtarget
+:           and util.contains({"Poisonous Cloud", "Freezing Cloud", "Fireball"}, pick) then
+:           x = p.cloudtarget[2]
+:           y = p.cloudtarget[3]
+:         end
 :         local line = find_path(x,y)
 :         local linestr = walkline(line)
 :         spc = "z" .. string.char(96 + idx) .. linestr .. "."
@@ -3309,7 +3378,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       make_attack(x,y)
 :     end
 :   else
-:     local x,y,m = get_target()
+:     local x,y,m = get_target(false)
 :     if m and (summoner() or have_smite()) then
 :       local didcast = cast_spell(x,y,m,true)
 :     else
