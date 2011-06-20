@@ -1410,8 +1410,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local threat = getthreat(mi, m, x, y)
 :       table.insert(v, threat)
 :       p.currentthreat = p.currentthreat + threat
-:       crawl.mpr("k: "..k.." mon: "..m:desc().." x: "..x.." y: "..y..
-:                 " threat: "..threat)
+:       --crawl.mpr("k: "..k.." mon: "..m:desc().." x: "..x.." y: "..y..
+:       --          " threat: "..threat)
 :       local dist = travel_distance(x,y)
 :
 :       if (not m:is_safe() or m:is(p.MB.confused))
@@ -2631,7 +2631,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Summon Scorpions"] = {-1,-1,4,200, {"Summoning", "Poison Magic"}, false, false},
 :    ["Levitation"] = {-1,-1,2,150, {"Charms", "Air Magic"}, true, true},
 :    ["Bolt of Inaccuracy"] = {7,7,3,1000, {"Conjurations"}, true, true}, -- not castable?
-:    ["Tornado"] = {-1,-1,9,200, {"Air Magic"}, false, false},
+:    ["Tornado"] = {-1,-1,9,200, {"Air Magic"}, true, false},
 :    ["Poisonous Cloud"] = {6,6,5,200, {"Conjurations", "Poison Magic", "Air Magic"}, true, false},
 :    ["Fire Storm"] = {6,6,9,200, {"Conjurations", "Fire Magic"}, true, false},
 :    ["Blink"] = {-1,-1,2,0, {"Translocations"}, true, false},
@@ -2910,11 +2910,11 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local dist = travel_distance(x,y)
 :
 :   local threat = stepdown_value(mi.xp, 50, 200, 20000, 10000)
-:   crawl.mpr("threat from xp("..mi.xp.."): " .. threat)
+:   --crawl.mpr("threat from xp("..mi.xp.."): " .. threat)
 :   threat = threat + (mi.hplow + mi.hphigh) / 2
 :
 :   if m then
-:     crawl.mpr(m:desc() .. " damage: " .. m:damage_level())
+:     --crawl.mpr(m:desc() .. " damage: " .. m:damage_level())
 :     threat = threat - (3 * m:damage_level())
 :   end
 :
@@ -2933,7 +2933,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :             s = s + v.dam
 :         end
 :     end
-:     crawl.mpr("threat from monster base damage: " .. (s*(1/dist)*2))
+:     --crawl.mpr("threat from monster base damage: " .. (s*(1/dist)*2))
 :     threat = threat + (s * (1 / dist) * 2)
 :   end
 :   if mi.spells and # mi.spells > 0 then
@@ -3096,6 +3096,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 :
 :   if getresist(mi, "Fire Magic") < 3 and adjacent(x,y)
+:      and not string.find(view.feature_at(x,y), "water")
 :      and not m:is(p.MB.burning)
 :      and util.contains(you.spells(),"Sticky Flame") then
 :      return "Sticky Flame"
@@ -3106,6 +3107,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       and not m:is(p.MB.confused)
 :       and util.contains(you.spells(),"Mephitic Cloud") then
 :      return "Mephitic Cloud"
+:   end
+:
+:   if # p.currentmonsters > 4
+:       and ((p.currentthreat > 500) or spell_hunger("Tornado") <= 0)
+:       and util.contains(you.spells(),"Tornado") then
+:      return "Tornado"
 :   end
 :
 :   -- not sure how to avoid getting poisoned other than actually figuring
@@ -3199,6 +3206,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     threat = getthreat(mi, m, x, y)
 :     crawl.mpr("threat: " .. threat)
 :     pref = prefer_spell(mi, m, x, y, threat)
+:     if pref then
+:       crawl.mpr("preferred: " .. pref)
+:     end
 :   else
 :     crawl.mpr("mons:" .. m:type() .. " has no monster info!")
 :   end
@@ -3328,7 +3338,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- 3 MDAM_HEAVILY_DAMAGED       mhp / 3
 : -- 4 MDAM_SEVERELY_DAMAGED      mhp / 4
 : -- 5 MDAM_ALMOST_DEAD           mhp / 6
-: p.mdam = {[0]=1, 0.99, 0.75, 0.33, 0.25, 0.16, 0.01}
+: p.mdam = {[-1]=1, [0]=1, 0.99, 0.75, 0.33, 0.25, 0.16, 0.01}
 : function mon_info()
 :   update_stuff()
 :   for k,v in pairs(p.currentmonsters) do
@@ -3342,6 +3352,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           local hpest1 = mi.hphigh * p.mdam[m:damage_level()-1]
 :           local hpest2 = mi.hphigh * p.mdam[m:damage_level()]
 :           crawl.mpr("m: " .. m:desc()
+:               .. " threat: " .. threat
 :               .. " speed: " .. mi.speed
 :               .. " hd: " .. mi.hd
 :               .. " hp: " .. mi.hplow .. "-" .. mi.hphigh
