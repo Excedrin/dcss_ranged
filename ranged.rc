@@ -140,11 +140,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- monster_info table
 : -- {{{1
 : monster_info={
+: [4]={name="gila monster", speed=10, hd=5, hplow=21, hphigh=39, ac=3, ev=12, attacks={ {dam=20, type="plain"} }, flags={ "cold-blooded" }, resists={ magic=20 }, xp=110},
+: [20]={name="megabat", speed=30, hd=1, hplow=2, hphigh=5, ac=1, ev=14, attacks={ {dam=1, type="plain"} }, flags={ "sense invisible", "fly" }, resists={ magic=1 }, xp=1},
 : [98]={name="worker ant", speed=12, hd=3, hplow=9, hphigh=24, ac=4, ev=10, attacks={ {dam=8, type="poison"} }, flags={  }, resists={ magic=12, poison=-1 }, xp=34},
 : [100]={name="queen ant", speed=7, hd=13, hplow=54, hphigh=93, ac=14, ev=3, attacks={ {dam=20, type="nasty poison"} }, flags={  }, resists={ magic=52, poison=-1 }, corpse="poisonous", xp=412},
 : [99]={name="soldier ant", speed=10, hd=6, hplow=20, hphigh=46, ac=8, ev=10, attacks={ {dam=14, type="nasty poison"} }, flags={  }, resists={ magic=24, poison=-1 }, corpse="poisonous", xp=156},
 : [97]={name="ant larva", speed=6, hd=2, hplow=6, hphigh=16, ac=2, ev=6, attacks={ {dam=5, type="plain"} }, flags={  }, resists={ magic=8, poison=-1 }, corpse="poisonous", xp=1},
-: [20]={name="megabat", speed=30, hd=1, hplow=2, hphigh=5, ac=1, ev=14, attacks={ {dam=1, type="plain"} }, flags={ "sense invisible", "fly" }, resists={ magic=1 }, xp=1},
 : [496]={name="bat", speed=30, hd=1, hplow=2, hphigh=5, ac=1, ev=14, attacks={ {dam=1, type="plain"} }, flags={ "sense invisible", "fly" }, resists={ magic=1 }, xp=1},
 : [96]={name="butterfly", speed=25, hd=1, hplow=3, hphigh=8, ac=0, ev=25, attacks={  }, flags={ "fly" }, resists={ magic=4, poison=-1 }, xp=0},
 : [131]={name="vampire bat", speed=30, hd=3, hplow=6, hphigh=15, ac=1, ev=14, attacks={ {dam=3, type="vampiric"} }, flags={ "evil", "sense invisible", "fly" }, resists={ magic=4, holy=-1 }, xp=55},
@@ -224,7 +225,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [1]={name="giant newt", speed=10, speedextra={swim=60}, hd=1, hplow=1, hphigh=3, ac=0, ev=15, attacks={ {dam=3, type="plain"} }, flags={ "amphibious", "cold-blooded" }, resists={ magic=4, drown=1 }, xp=1},
 : [2]={name="giant gecko", speed=12, hd=1, hplow=3, hphigh=8, ac=1, ev=14, attacks={ {dam=5, type="plain"} }, flags={ "cold-blooded" }, resists={ magic=4 }, xp=2},
 : [3]={name="iguana", speed=10, hd=3, hplow=9, hphigh=24, ac=5, ev=9, attacks={ {dam=15, type="plain"} }, flags={ "cold-blooded" }, resists={ magic=12 }, xp=37},
-: [4]={name="gila monster", speed=10, hd=5, hplow=21, hphigh=39, ac=3, ev=12, attacks={ {dam=20, type="plain"} }, flags={ "cold-blooded" }, resists={ magic=20 }, corpse="poison+contam", xp=110},
 : [5]={name="komodo dragon", speed=10, speedextra={swim=60}, hd=8, hplow=29, hphigh=58, ac=7, ev=8, attacks={ {dam=30, type="disease"} }, flags={ "amphibious", "cold-blooded" }, resists={ magic=32, drown=1 }, corpse="contaminated", xp=313},
 : [61]={name="swamp drake", speed=11, hd=4, hplow=20, hphigh=40, ac=3, ev=11, attacks={ {dam=14, type="plain"} }, flags={ "fly", "!sil" }, resists={ magic=16, poison=1 }, corpse="poison+contam", xp=120, spells={ {"noxious cloud"} }},
 : [60]={name="fire drake", speed=12, hd=6, hplow=20, hphigh=46, ac=3, ev=12, attacks={ {dam=8, type="plain"} }, flags={ "fly", "!sil" }, resists={ magic=24, fire=1 }, corpse="contaminated", xp=183, spells={ {"flame blast"} }},
@@ -461,8 +461,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [261]={name="necromancer", speed=10, hd=10, hplow=26, hphigh=53, ac=0, ev=13, attacks={ {dam=6, type="plain"} }, flags={ "evil", "spellcaster" }, resists={ magic=53, holy=-1 }, corpse="contaminated", xp=611, spells={ {"b.cold", "b.draining", "animate dead", "teleport self"}, {"b.fire", "pain", "invisibility", "animate dead", "blink"} }},
 : [262]={name="wizard", speed=10, hd=10, hplow=26, hphigh=55, ac=0, ev=13, attacks={ {dam=6, type="plain"} }, flags={ "spellcaster" }, resists={ magic=53 }, corpse="contaminated", xp=688, spells={ {"b.venom", "mystic blast", "invisibility", "confuse", "slow", "teleport self"}, {"magic dart", "paralyse", "haste", "b.lightning", "confuse", "teleport self"}, {"paralyse", "throw flame", "invisibility", "teleport other", "fireball"}, {"petrify", "crystal spear", "blink", "b.fire", "b.cold", "minor healing"}, {"stone arrow", "sting", "blink", "b.lightning", "banishment", "minor healing"} }},
 : [263]={name="vault guard", speed=10, hd=13, hplow=54, hphigh=94, ac=1, ev=13, attacks={ {dam=20, type="plain"} }, flags={ "sense invisible" }, resists={ magic=52 }, corpse="contaminated", xp=1375},
-: [205]={name="shapeshifter", speed=5, speedmax=30, hd=8, hplow=8, hphigh=110, ac=0, ev=10, attacks={ {dam=10, type="plain"} }, flags={ "!sil" }, resists={ magic=56 }, corpse="mutagenic", xp=366, spells={ "random" }},
-: [111]={name="glowing shapeshifter", speed=3, speedmax=18, hd=9, hplow=24, hphigh=101, ac=0, ev=10, attacks={ {dam=45, type="plain"} }, flags={ "!sil" }, resists={ magic=80 }, corpse="mutagenic", xp=484, spells={ "random" }},
+: [205]={name="shapeshifter", speed=5, speedmax=30, hd=8, hplow=8, hphigh=110, ac=0, ev=10, attacks={ {dam=10, type="plain"} }, flags={ "!sil" }, resists={ magic=56 }, corpse="mutagenic", xp=366, spells={ { "random" } }},
+: [111]={name="glowing shapeshifter", speed=3, speedmax=18, hd=9, hplow=24, hphigh=101, ac=0, ev=10, attacks={ {dam=45, type="plain"} }, flags={ "!sil" }, resists={ magic=80 }, corpse="mutagenic", xp=484, spells={ { "random" } }},
 : [264]={name="Killer Klown", speed=13, hd=20, hplow=129, hphigh=171, ac=10, ev=15, attacks={ {dam=30, type="klown"} }, flags={ "evil", "see invisible", "regen", "!sil" }, resists={ magic=160, holy=-1 }, xp=6835, spells={ {"blink"} }},
 : [404]={name="paladin", speed=10, hd=10, hplow=47, hphigh=81, ac=0, ev=10, attacks={ {dam=26, type="plain"} }, flags={ "holy", "spellcaster" }, resists={ magic=40, holy=1, rot=1, neg=3 }, xp=811},
 : [133]={name="demonspawn", speed=10, hd=5, hplow=16, hphigh=39, ac=2, ev=12, attacks={ {dam=10, type="plain"} }, flags={ "demonic" }, resists={ magic=20, holy=-2, rot=1, neg=3, torment=1 }, corpse="contaminated", xp=130},
@@ -535,7 +535,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [134]={name="gargoyle", speed=10, hd=4, hplow=12, hphigh=32, ac=18, ev=6, attacks={ {dam=10, type="plain"}, {dam=6, type="plain"}, {dam=6, type="plain"} }, flags={ "non-living", "fly" }, resists={ magic=32, elec=2, poison=1, asphyx=1, drown=1, rot=3, neg=3, torment=1 }, xp=142},
 : [135]={name="metal gargoyle", speed=7, hd=8, hplow=29, hphigh=58, ac=20, ev=4, attacks={ {dam=19, type="plain"}, {dam=10, type="plain"}, {dam=10, type="plain"} }, flags={ "non-living", "fly" }, resists={ magic=64, elec=2, poison=1, asphyx=1, drown=1, rot=3, neg=3, torment=1 }, xp=205},
 : [136]={name="molten gargoyle", speed=10, hd=5, hplow=16, hphigh=39, ac=14, ev=7, attacks={ {dam=12, type="fire 5-9"}, {dam=8, type="plain"}, {dam=8, type="plain"} }, flags={ "non-living", "fly" }, resists={ magic=40, fire=3, elec=1, poison=1, steam=1, asphyx=1, drown=1, rot=3, neg=3, torment=1 }, xp=171},
-: [341]={name="pandemonium lord", speed=9, speedmax=17, hd=16, hplow=111, hphigh=245, ac=14, ev=14, attacks={ {dam=38, type="plain"} }, flags={ "demonic", "!sil" }, resists={ magic=126, fire=2, poison=1, holy=-2, steam=1, rot=1, neg=3, torment=1 }, xp=5999, spells={ "random" }},
+: [341]={name="pandemonium lord", speed=9, speedmax=17, hd=16, hplow=111, hphigh=245, ac=14, ev=14, attacks={ {dam=38, type="plain"} }, flags={ "demonic", "!sil" }, resists={ magic=126, fire=2, poison=1, holy=-2, steam=1, rot=1, neg=3, torment=1 }, xp=5999, spells={ { "random" } }},
 : [485]={name="hell lord", speed=10, hd=19, hplow=142, hphigh=213, ac=1, ev=2, attacks={ {dam=5, type="plain"} }, flags={ "demonic" }, resists={ magic=126, poison=1, holy=-2, rot=1, neg=3, torment=1 }, xp=4143},
 : [483]={name="ball lightning", speed=20, hd=12, hplow=1, hphigh=1, ac=0, ev=10, attacks={ {dam=5, type="plain"} }, flags={ "non-living", "lev", "!sil" }, resists={ magic=5000, fire=3, cold=3, elec=3, poison=3, steam=1, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, wind=1, petrify=1 }, xp=1024, spells={ {"b.lightning"} }},
 : [179]={name="giant spore", speed=15, hd=1, hplow=1, hphigh=1, ac=0, ev=10, attacks={ {dam=1, type="plain"} }, flags={ "plant", "lev" }, resists={ magic=4, poison=1, asphyx=1, drown=1, neg=3 }, xp=1},
@@ -3352,6 +3352,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           local hpest1 = mi.hphigh * p.mdam[m:damage_level()-1]
 :           local hpest2 = mi.hphigh * p.mdam[m:damage_level()]
 :           crawl.mpr("m: " .. m:desc()
+:               .. " name: " .. mi.name
 :               .. " threat: " .. threat
 :               .. " speed: " .. mi.speed
 :               .. " hd: " .. mi.hd
