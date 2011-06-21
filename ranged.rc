@@ -1410,7 +1410,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local m = v[1]
 :       local x = v[2]
 :       local y = v[3]
-:       local mi = monster_info[m:type()]
+:       local mi = get_mon_info(m) --monster_info[m:type()]
 :       local threat = getthreat(mi, m, x, y)
 :       table.insert(v, threat)
 :       p.currentthreat = p.currentthreat + threat
@@ -3248,7 +3248,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function overallthreat(monsters)
 :   local sumthreat = 0
 :   for k,v in pairs(monsters) do
-:       local smi = monster_info[v[1]:type()]
+:       local smi = get_mon_info(v[1]) --monster_info[m:type()]
 :       sumthreat = sumthreat + getthreat(smi, v[1], v[2], v[3])
 :   end
 :   return sumthreat
@@ -3384,7 +3384,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if not m then
 :     return nil, -1
 :   end
-:   local mi = monster_info[m:type()]
+:   local mi = get_mon_info(m) --monster_info[m:type()]
 :   local pref
 :   local threat = 0
 :   if mi then
