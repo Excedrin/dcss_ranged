@@ -3282,7 +3282,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Agony"
 :   end
 :
-:   if getresist(mi, "Fire Magic") < 3 and adjacent(x,y)
+:   if getresist(mi, "Fire Magic") < 3
+:      and not mi.resists["sticky_flame"]
+:      and adjacent(x,y)
 :      and not string.find(view.feature_at(x,y), "water")
 :      and not m:is(p.MB.burning)
 :      and util.contains(you.spells(),"Sticky Flame") then
