@@ -140,8 +140,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- monster_info table
 : -- {{{1
 : monster_info={
+: -- hacked in old monsters, so this rc works on 0.8
 : [4]={name="gila monster", speed=10, hd=5, hplow=21, hphigh=39, ac=3, ev=12, attacks={ {dam=20, type="plain"} }, flags={ "cold-blooded" }, resists={ magic=20 }, xp=110},
 : [20]={name="megabat", speed=30, hd=1, hplow=2, hphigh=5, ac=1, ev=14, attacks={ {dam=1, type="plain"} }, flags={ "sense invisible", "fly" }, resists={ magic=1 }, xp=1},
+: -- end hacked in old monsters, so this rc works on 0.8
 : [98]={name="worker ant", speed=12, hd=3, hplow=9, hphigh=24, ac=4, ev=10, attacks={ {dam=8, type="poison"} }, flags={  }, resists={ magic=12, poison=-1 }, xp=34},
 : [100]={name="queen ant", speed=7, hd=13, hplow=54, hphigh=93, ac=14, ev=3, attacks={ {dam=20, type="nasty poison"} }, flags={  }, resists={ magic=52, poison=-1 }, corpse="poisonous", xp=412},
 : [99]={name="soldier ant", speed=10, hd=6, hplow=20, hphigh=46, ac=8, ev=10, attacks={ {dam=14, type="nasty poison"} }, flags={  }, resists={ magic=24, poison=-1 }, corpse="poisonous", xp=156},
@@ -251,7 +253,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [370]={name="phantom", speed=10, hd=7, hplow=24, hphigh=52, ac=3, ev=13, attacks={ {dam=10, type="blink"} }, flags={ "undead", "evil", "lev", "!sil" }, resists={ magic=37, cold=2, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=124, spells={ {"blink"} }},
 : [372]={name="hungry ghost", speed=10, hd=7, hplow=24, hphigh=52, ac=0, ev=17, attacks={ {dam=5, type="hunger"} }, flags={ "undead", "evil", "sense invisible", "lev" }, resists={ magic=37, cold=2, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=184},
 : [373]={name="flayed ghost", speed=10, hd=11, hplow=43, hphigh=78, ac=0, ev=14, attacks={ {dam=30, type="plain"} }, flags={ "undead", "evil", "lev" }, resists={ magic=58, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=719},
-: [482]={name=" ghost", speed=10, hd=1, hplow=5, hphigh=5, ac=1, ev=2, attacks={ {dam=4, type="plain"} }, flags={ "undead", "evil", "spellcaster", "lev" }, resists={ magic=26, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=3},
+: [481]={name=" ghost", speed=10, hd=1, hplow=5, hphigh=5, ac=1, ev=2, attacks={ {dam=4, type="plain"} }, flags={ "undead", "evil", "spellcaster", "lev" }, resists={ magic=26, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=3},
 : [371]={name="shadow", speed=10, hd=3, hplow=9, hphigh=24, ac=12, ev=10, attacks={ {dam=5, type="drain strength"} }, flags={ "undead", "evil", "see invisible", "lev" }, resists={ magic=20, cold=3, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=45},
 : [378]={name="silent spectre", speed=10, hd=8, hplow=29, hphigh=58, ac=5, ev=15, attacks={ {dam=15, type="plain"} }, flags={ "undead", "evil", "see invisible", "lev" }, resists={ magic=42, cold=3, poison=1, holy=-2, sticky_flame=1, asphyx=1, drown=1, rot=3, neg=3, torment=1, petrify=1 }, xp=313},
 : [403]={name="spirit", speed=4, hd=7, hplow=38, hphigh=67, ac=3, ev=19, attacks={  }, flags={ "holy", "lev", "!sil" }, resists={ magic=37, poison=1, holy=1, sticky_flame=1, rot=3, neg=3, petrify=1 }, xp=66, spells={ {"blink away"} }},
@@ -461,8 +463,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [261]={name="necromancer", speed=10, hd=10, hplow=26, hphigh=53, ac=0, ev=13, attacks={ {dam=6, type="plain"} }, flags={ "evil", "spellcaster" }, resists={ magic=53, holy=-1 }, corpse="contaminated", xp=611, spells={ {"b.cold", "b.draining", "animate dead", "teleport self"}, {"b.fire", "pain", "invisibility", "animate dead", "blink"} }},
 : [262]={name="wizard", speed=10, hd=10, hplow=26, hphigh=55, ac=0, ev=13, attacks={ {dam=6, type="plain"} }, flags={ "spellcaster" }, resists={ magic=53 }, corpse="contaminated", xp=688, spells={ {"b.venom", "mystic blast", "invisibility", "confuse", "slow", "teleport self"}, {"magic dart", "paralyse", "haste", "b.lightning", "confuse", "teleport self"}, {"paralyse", "throw flame", "invisibility", "teleport other", "fireball"}, {"petrify", "crystal spear", "blink", "b.fire", "b.cold", "minor healing"}, {"stone arrow", "sting", "blink", "b.lightning", "banishment", "minor healing"} }},
 : [263]={name="vault guard", speed=10, hd=13, hplow=54, hphigh=94, ac=1, ev=13, attacks={ {dam=20, type="plain"} }, flags={ "sense invisible" }, resists={ magic=52 }, corpse="contaminated", xp=1375},
-: [205]={name="shapeshifter", speed=5, speedmax=30, hd=8, hplow=8, hphigh=110, ac=0, ev=10, attacks={ {dam=10, type="plain"} }, flags={ "!sil" }, resists={ magic=56 }, corpse="mutagenic", xp=366, spells={ { "random" } }},
-: [111]={name="glowing shapeshifter", speed=3, speedmax=18, hd=9, hplow=24, hphigh=101, ac=0, ev=10, attacks={ {dam=45, type="plain"} }, flags={ "!sil" }, resists={ magic=80 }, corpse="mutagenic", xp=484, spells={ { "random" } }},
+: [265]={name="shapeshifter", speed=5, speedmax=30, hd=8, hplow=8, hphigh=110, ac=0, ev=10, attacks={ {dam=10, type="plain"} }, flags={ "!sil" }, resists={ magic=56 }, corpse="mutagenic", xp=366, spells={ { "random" } }},
+: [266]={name="glowing shapeshifter", speed=3, speedmax=18, hd=9, hplow=24, hphigh=101, ac=0, ev=10, attacks={ {dam=45, type="plain"} }, flags={ "!sil" }, resists={ magic=80 }, corpse="mutagenic", xp=484, spells={ { "random" } }},
 : [264]={name="Killer Klown", speed=13, hd=20, hplow=129, hphigh=171, ac=10, ev=15, attacks={ {dam=30, type="klown"} }, flags={ "evil", "see invisible", "regen", "!sil" }, resists={ magic=160, holy=-1 }, xp=6835, spells={ {"blink"} }},
 : [404]={name="paladin", speed=10, hd=10, hplow=47, hphigh=81, ac=0, ev=10, attacks={ {dam=26, type="plain"} }, flags={ "holy", "spellcaster" }, resists={ magic=40, holy=1, rot=1, neg=3 }, xp=811},
 : [133]={name="demonspawn", speed=10, hd=5, hplow=16, hphigh=39, ac=2, ev=12, attacks={ {dam=10, type="plain"} }, flags={ "demonic" }, resists={ magic=20, holy=-2, rot=1, neg=3, torment=1 }, corpse="contaminated", xp=130},
@@ -620,6 +622,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : [408]={name="Asmodeus", speed=10, hd=17, hplow=450, hphigh=450, ac=30, ev=7, attacks={ {dam=50, type="plain"} }, flags={ "demonic", "see invisible", "fly", "!sil" }, resists={ magic=272, hellfire=1, elec=1, poison=1, holy=-2, steam=1, rot=1, neg=3, torment=1 }, xp=15000, spells={ {"b.fire", "hellfire", "fire summon", "teleport self"} }},
 : [410]={name="Ereshkigal", speed=14, hd=18, hplow=250, hphigh=250, ac=10, ev=30, attacks={ {dam=40, type="plain"} }, flags={ "demonic", "evil", "see invisible", "!sil" }, resists={ magic=240, cold=1, elec=2, poison=1, holy=-2, rot=1, neg=3, torment=1 }, xp=14085, spells={ {"b.draining", "b.cold", "greater demon", "torment symbol", "paralyse", "minor healing"} }},
 : [503]={name="basilisk", speed=10, hd=5, hplow=21, hphigh=39, ac=3, ev=12, attacks={ {dam=20, type="plain"} }, flags={ "cold-blooded", "!sil" }, resists={ magic=20 }, corpse="poison+contam", xp=153, spells={ {"petrify"} }},
+: [504]={name="octopode", speed=10, hd=6, hplow=26, hphigh=58, ac=0, ev=5, attacks={ {dam=15, type="plain"}, {dam=10, type="plain"} }, flags={ "amphibious", "cold-blooded" }, resists={ magic=8, drown=1 }, xp=227},
 : }
 :  --}}}
 # -- code
@@ -734,8 +737,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 
 : function update_cloud()
 :   p.cloudtarget = nil
-:   if have_cloud() and p.currentmonsters and # p.currentmonsters > 0 then
-:       p.cloudtarget = best_cloud_center(7) -- max cloud range is 6, 7 with veh
+:   local cloud = have_cloud()
+:   if cloud and p.currentmonsters and # p.currentmonsters > 0 then
+:       p.cloudtarget = best_cloud_center(7, cloud, spell_power(cloud))
 :       local count = p.cloudtarget[1]
 :       local x = p.cloudtarget[2]
 :       local y = p.cloudtarget[3]
@@ -1448,7 +1452,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return radius_iter(1, count)
 : end
 
-: function best_cloud_center(r)
+: function in_range(spell,pow,x,y)
+:   local range = spell_range(spell, pow)
+:   return range * range + 1 >= spl_dist(x,y)
+: end
+
+: function best_cloud_center(r, spell, pow)
 :   local function count(x,y,r,a)
 :     a = a or {}
 :     a[x] = a[x] or {}
@@ -1458,6 +1467,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local adjmap = radius_iter(r, count)
 :   local function bestadj(x,y,r,a)
 :       a = a or {0, 0, 0}
+:       if not in_range(spell,pow,x,y) then
+:           return a
+:       end
 :       if not feature_lof_loc(x,y) then
 :           return a
 :       end
@@ -2867,9 +2879,184 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function mon_byname(name)
 :   for k,v in pairs(monster_info) do
 :       if name == v.name then
-:           return v
+:           return v, k
 :       end
 :   end
+: end
+
+: -- returns min, max values that the hit_points func from mon-util.cc
+: -- line 1545 would return given the same params
+: -- results are different from Gretell (which is based on monte carlo),
+: -- but are mathematically correct even if the extremes are unlikely
+: function hit_points(hd, plushp, randhp)
+:   local minhp = 0
+:   local maxhp = 0
+:   for i=1,hd do
+:       minhp = minhp + plushp
+:       maxhp = maxhp + plushp + randhp
+:   end
+:   return minhp, maxhp
+: end
+
+: p.ugly_color_to_elem = {["red"] = {"fire", "fire", "sticky_flame"},
+:  ["brown"] = {"acid", "acid"},
+:  ["green"] = {"poison_nasty", nil, "poison"},
+:  ["cyan"] = {"elec", "elec"},
+:  ["magenta"] = {"disease", nil, "rot"},
+:  ["white"] = {"cold", "cold"},
+: }
+: p.very_ugly_upgrade = {
+: ["red"] = "napalm",
+: ["green"] = "poison_medium",
+: ["magenta"] = "rot",
+: }
+: function make_ugly_mi(m)
+:   --crawl.mpr("make ugly: " .. m:desc())
+:   local origname = m:desc()
+:   local _, _, color = string.find(origname, "(%a+)")
+:   local very = string.find(origname, "very") ~= nil
+:   local mi = util.copy_table(monster_info[m:type()])
+:   local fix = p.ugly_color_to_elem[color]
+:   for k,v in pairs(mi.attacks) do
+:       damtype = fix[1]
+:       if very and p.very_ugly_upgrade(color) then
+:           damtype = p.very_ugly_upgrade(color)
+:       end
+:       mi.attacks[k].type = damtype
+:   end
+:   local mr = mi.resists.magic
+:   mi.resists = {["magic"]=mr}
+:   local reslvl = 1
+:   if very then reslvl = 2 end
+:   if fix[2] then
+:       mi.resists[fix[2]] = reslvl
+:   end
+:   if fix[3] then
+:       mi.resists[fix[3]] = 1
+:   end
+:   mi.name = string.gsub(mi.name, "buggy", color)
+:   return mi
+: end
+: -- 388, 389 small skeleton, big skeleton
+: -- 390, 391 small zombie, big zombie
+: -- 392 spectral w/e
+: -- 393, 394 small/large simulacrum
+: p.undead_info = {
+:   [388] = {5,4,"%s skeleton",-6,-7,"plain"},
+:   [389] = {5,4,"%s skeleton",-6,-7,"plain"},
+:   [390] = {6,5,"%s zombie",-2,-5,"plain"},
+:   [391] = {6,5,"%s zombie",-2,-5,"plain"},
+:   [392] = {4,4,"spectral %s",2,-5,"drain"},
+:   [393] = {1,4,"%s simulacrum",-2,-5,"cold"},
+:   [394] = {1,4,"%s simulacrum",-2,-5,"cold"},
+: }
+: function make_undead_mi(m)
+:   local mtype = m:type()
+:   local mbase = m:base_type()
+:   --crawl.mpr("make undead: " .. m:desc() .. " " .. mtype .. " ".. mbase)
+:   local mi = util.copy_table(monster_info[mbase])
+:   local undead = p.undead_info[mtype]
+:   mi.hplow, mi.hphigh = hit_points(mi.hd, undead[1], undead[2])
+:   mi.name = string.format(undead[3], monster_info[mbase].name)
+:   local mr = mi.resists.magic
+:   if mtype == 392 then mr = 5000 end -- spectral stuff is magic immune
+:   mi.resists = util.copy_table(monster_info[mtype].resists)
+:   mi.resists.magic = mr
+:   mi.ac = math.max(mi.ac + undead[4], 0)
+:   mi.ev = math.max(mi.ev + undead[5], 0)
+:   mi.speed = math.max(3, mi.speed - 2)
+:   mi.spells = nil
+:   local newattacks = {}
+:   for k,v in pairs(mi.attacks) do
+:       if v.dam > 1 then v.dam = v.dam - 1 end
+:       if v.dam > 4 then v.dam = v.dam - 1 end
+:       if v.dam > 11 then v.dam = v.dam - 1 end
+:       if v.dam > 14 then v.dam = v.dam - 1 end
+:       table.insert(newattacks, {["dam"]=v.dam, ["type"]=undead[6]})
+:   end
+:   mi.attacks = newattacks
+:   return mi
+: end
+: function make_draconian_mi(m)
+:   local mtype = m:type()  -- job
+:   local mbase = m:base_type() -- color
+:   --crawl.mpr("make draconian: " .. m:desc() .. " " .. mtype .. " ".. mbase)
+:   local mi = util.copy_table(monster_info[mbase])
+:   local job = monster_info[mtype]
+:   if job.resists then
+:       for k,v in pairs(job.resists) do
+:           mi.resists[k] = v
+:       end
+:   end
+:   mi.hplow = job.hplow
+:   mi.hphigh = job.hphigh
+:   mi.hd = job.hd
+:   mi.ac = job.ac
+:   mi.ev = job.ev
+:   local breath = mi.spells[1][1]
+:   mi.spells = util.copy_table(job.spells)
+:   for _,spellset in pairs(mi.spells) do
+:       if breath then
+:           spellset[1] = breath
+:       end
+:   end
+:   local _, _, color = string.find(m:desc(), "(%a+)")
+:   mi.name = string.gsub(job.name, "purple", color)
+:   return mi
+: end
+: -- 137, 138 ugly things
+: p.custom_mi = {
+:   [137] = make_ugly_mi,
+:   [138] = make_ugly_mi,
+:   [388] = make_undead_mi,
+:   [389] = make_undead_mi,
+:   [390] = make_undead_mi,
+:   [391] = make_undead_mi,
+:   [392] = make_undead_mi,
+:   [393] = make_undead_mi,
+:   [394] = make_undead_mi,
+:--   [267] = make_draconian_mi,
+:--   [268] = make_draconian_mi,
+:--   [269] = make_draconian_mi,
+:--   [270] = make_draconian_mi,
+:--   [271] = make_draconian_mi,
+:--   [272] = make_draconian_mi,
+:--   [273] = make_draconian_mi,
+:--   [274] = make_draconian_mi,
+:--   [275] = make_draconian_mi,
+:--   [276] = make_draconian_mi,
+:   [277] = make_draconian_mi,
+:   [278] = make_draconian_mi,
+:   [279] = make_draconian_mi,
+:   [280] = make_draconian_mi,
+:   [281] = make_draconian_mi,
+:   [282] = make_draconian_mi,
+:   [283] = make_draconian_mi,
+: }
+: function get_mon_info(m)
+:   local mtype = m:type()
+:   if p.custom_mi[mtype] then
+:       return p.custom_mi[mtype](m)
+:   end
+:   local mi = monster_info[mtype]
+:   local origname = m:desc()
+:   local name = util.trim(string.gsub(origname, "%b()", ""))
+:   if not mi then
+:       mi = mon_byname(name)
+:   end
+:   local undead = {"zombie", "skeleton"}
+:   if mi and contains_string_in(name, undead) then
+:       for k,v in pairs(undead) do
+:           name = string.gsub(name, v)
+:       end
+:       local mi2 = mon_byname(name)
+:       crawl.mpr("mon info for undead (" .. name .. ") " .. mi2.name)
+:   end
+:   if not mi then
+:       crawl.mpr("couldn't find mon info for (" .. name .. ") " .. m:type())
+:   end
+:   crawl.mpr("mon info for (" .. name .. ") " .. mi.name)
+:   return mi
 : end
 
 : function mon_has_spell(mi, spell)
@@ -3174,10 +3361,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function have_cloud()
 :   for i,n in pairs(you.spells()) do
 :       if string.find(n, "Cloud") then
-:           return true
+:           return n
 :       end
 :   end
-:   return false
+:   return nil
 : end
 
 : function have_smite()
@@ -3346,45 +3533,45 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local x = v[2]
 :       local y = v[3]
 :       local threat = v[4]
-:       local mi = monster_info[m:type()]
+:       local mi = get_mon_info(m) --monster_info[m:type()]
 :       local dist = travel_distance(x,y)
 :       if m then
 :           local hpest1 = mi.hphigh * p.mdam[m:damage_level()-1]
 :           local hpest2 = mi.hphigh * p.mdam[m:damage_level()]
-:           crawl.mpr("m: " .. m:desc()
-:               .. " name: " .. mi.name
-:               .. " threat: " .. threat
-:               .. " speed: " .. mi.speed
-:               .. " hd: " .. mi.hd
-:               .. " hp: " .. mi.hplow .. "-" .. mi.hphigh
-:               .. " hp est: " .. hpest2 .. "-" .. hpest1
-:               .. " ac/ev: " .. mi.ac .. "/" .. mi.ev
-:               .. " xp: " .. mi.xp)
+:           local outstr = string.format("name: %s (%s)\nthreat: %d "..
+:               "speed: %d hd: %d hp: %d-%d hpest: %d-%d ac/ev: %d/%d "..
+:               "xp: %d",m:desc(), mi.name, threat, mi.speed, mi.hd, 
+:               mi.hplow, mi.hphigh, hpest2, hpest1, mi.ac, mi.ev, mi.xp)
 :           --for k,v in pairs(p.MB) do
 :           --    crawl.mpr(k .. ": " .. tostring(m:is(p.MB[k])))
 :           --end
 :           if mi.attacks then
+:               outstr = outstr .. " attacks: "
+:               local lst = {}
 :               for _,attack in pairs(mi.attacks) do
-:                   crawl.mpr("attacks: ")
-:                   for k,v in pairs(attack) do
-:                       crawl.mpr(k .. " " .. v)
-:                   end
+:                   table.insert(lst, attack.dam.."("..attack.type..")")
 :               end
+:               outstr = outstr .. table.concat(lst, ", ")
 :           end
 :           if mi.resists then
-:               crawl.mpr("resists: ")
+:               outstr = outstr .. " resists: "
+:               local reslst = {}
 :               for k,v in pairs(mi.resists) do
-:                   crawl.mpr(k .. ": " .. v)
+:                   table.insert(reslst, k .. "=" .. v)
 :               end
+:               outstr = outstr .. table.concat(reslst, ", ")
 :           end
 :           if mi.spells then
+:               outstr = outstr .. " spells: "
 :               for _,spellset in pairs(mi.spells) do
-:                   crawl.mpr("spell set: ")
+:                   local spelllst = {}
 :                   for k,v in pairs(spellset) do
-:                       crawl.mpr(v)
+:                       table.insert(spelllst, v)
 :                   end
+:                   outstr = outstr .. table.concat(spelllst, ", ") .. ";"
 :               end
 :           end
+:           crawl.mpr(outstr)
 :       end
 :   end
 : end
