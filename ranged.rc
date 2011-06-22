@@ -1457,35 +1457,25 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return range * range + 1 >= spl_dist(x,y)
 : end
 
+
 : function best_cloud_center(r, spell, pow)
-:   local function count(x,y,r,a)
-:     a = a or {}
-:     a[x] = a[x] or {}
-:     a[x][y] = c_adjmons(x,y)
-:     return a
+:   local a = a or {0, 0, 0}
+:   for x = -r,r do
+:       for y = -r,r do
+:           if feature_lof_loc(x,y) and in_range(spell,pow,x,y) then
+:               local adj = c_adjmons(x,y)
+:               if adj > a[1]
+:                   or (adj == a[1]
+:                   and travel_distance(a[2],a[3]) < travel_distance(x,y))
+:               then
+:                   a[1] = adj
+:                   a[2] = x
+:                   a[3] = y
+:               end
+:           end
+:       end
 :   end
-:   local adjmap = radius_iter(r, count)
-:   local function bestadj(x,y,r,a)
-:       a = a or {0, 0, 0}
-:       if not in_range(spell,pow,x,y) then
-:           return a
-:       end
-:       if not feature_lof_loc(x,y) then
-:           return a
-:       end
-:       if adjmap[x][y] > a[1] then
-:           a[1] = adjmap[x][y]
-:           a[2] = x
-:           a[3] = y
-:       elseif adjmap[x][y] == a[1] and a[2]
-:           and travel_distance(a[2],a[3]) < travel_distance(x,y) then
-:           a[1] = adjmap[x][y]
-:           a[2] = x
-:           a[3] = y
-:       end
-:       return a
-:   end
-:   return radius_iter(r, bestadj)
+:   return a
 : end
 
 : function get_target(clearlof)
@@ -2919,8 +2909,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local fix = p.ugly_color_to_elem[color]
 :   for k,v in pairs(mi.attacks) do
 :       damtype = fix[1]
-:       if very and p.very_ugly_upgrade(color) then
-:           damtype = p.very_ugly_upgrade(color)
+:       if very and p.very_ugly_upgrade[color] then
+:           damtype = p.very_ugly_upgrade[color]
 :       end
 :       mi.attacks[k].type = damtype
 :   end
@@ -3473,6 +3463,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.dry = false
 
 : function cast_spell(x,y,m,nolof)
+:   if you.confused() then
+:       crawl.mpr("confused! not casting")
+:       return false,0,0
+:   end
 :   if not (x == 0 and y == 0) then
 :     local pick, idx = pick_spell(x,y,m,nolof)
 :     if pick then
