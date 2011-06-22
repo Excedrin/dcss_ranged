@@ -702,6 +702,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.currentmonsters = {}
 : p.currentthreat = 0
 
+: p.current_armour = nil
+: p.current_armour_info = {0,0,0}
+
+: p.current_shield = nil
+: p.current_shield_info = {0,0,0}
+
 : function goals()
 :   crawl.mpr("p.move: "..p.move.." p.travel_goal: ".. p.travel_goal..
 :   " branch_goal: "..p.branch_goal.." branch_command: "..p.branch_command)
@@ -809,6 +815,11 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   p.last_mp = new_mp
 :   p.last_mmp = new_mmp
 :   p.last_xl = you.xl()
+:
+:   p.current_armour = items.equipped_at(6)
+:   p.current_armour_info = get_armour_info(p.current_armour)
+:   p.current_shield = items.equipped_at(5)
+:   p.current_shield_info = get_shield_info(p.current_shield)
 :
 :   update_monsters()
 :   update_cloud()
@@ -2618,11 +2629,11 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Lightning Bolt"] = {5,8,5,200, {"Air Magic", "Conjurations"}, false, true},
 :    ["Airstrike"] = {8,8,4,200, {"Air Magic"}, false, false},
 :    ["Pain"] = {6,6,1,25, {"Necromancy"}, false, true},
-:    ["Haunt"] = {8,8,7,200, {"Necromancy", "Summoning"}, false, false},
+:    ["Haunt"] = {8,8,7,200, {"Necromancy", "Summonings"}, false, false},
 :    ["Agony"] = {8,8,5,200, {"Necromancy"}, true, true},
 :    ["Dispel Undead"] = {5,5,4,100, {"Necromancy"}, true, true},
 :    ["Bolt of Draining"] = {6,6,6,200, {"Necromancy", "Conjurations"}, false, true},
-:    ["Call Imp"] = {-1,-1,2,200, {"Summoning"}, false, false},
+:    ["Call Imp"] = {-1,-1,2,200, {"Summonings"}, false, false},
 :    ["Vampiric Draining"] = {1,1,3,200, {"Necromancy"}, true, true},
 :    ["Teleport Self"] = {-1,-1,5,0, {"Translocations"}, true, false},
 :    ["Apporation"] = {8,8,1,1000, {"Translocations"}, true, true},
@@ -2641,26 +2652,26 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Teleport Other"] = {8,8,3,200, {"Translocations"}, true, true},
 :    ["Death's Door"] = {-1,-1,8,200, {"Charms", "Necromancy"}, true, false},
 :    ["Mass Confusion"] = {-1,-1,6,200, {"Hexes"}, true, false},
-:    ["Summon Small Mammals"] = {-1,-1,1,25, {"Summoning"}, true, false},
-:    ["Abjuration"] = {8,8,6,200, {"Charms"}, true, true},
-:    ["Summon Scorpions"] = {-1,-1,4,200, {"Summoning", "Poison Magic"}, false, false},
+:    ["Summon Small Mammals"] = {-1,-1,1,25, {"Summonings"}, true, false},
+:    ["Abjuration"] = {8,8,3,200, {"Summonings"}, true, true},
+:    ["Summon Scorpions"] = {-1,-1,4,200, {"Summonings", "Poison Magic"}, false, false},
 :    ["Levitation"] = {-1,-1,2,150, {"Charms", "Air Magic"}, true, true},
 :    ["Bolt of Inaccuracy"] = {7,7,3,1000, {"Conjurations"}, true, true}, -- not castable?
 :    ["Tornado"] = {-1,-1,9,200, {"Air Magic"}, true, false},
 :    ["Poisonous Cloud"] = {6,6,5,200, {"Conjurations", "Poison Magic", "Air Magic"}, true, false},
 :    ["Fire Storm"] = {6,6,9,200, {"Conjurations", "Fire Magic"}, true, false},
 :    ["Blink"] = {-1,-1,2,0, {"Translocations"}, true, false},
-:    ["Summon Swarm"] = {-1,-1,5,200, {"Summoning"}, false, false},
-:    ["Summon Horrible Things"] = {-1,-1,8,200, {"Summoning"}, false, false},
-:    ["Malign Gateway"] = {-1,-1,7,200, {"Summoning", "Translocations"}, true, false},
+:    ["Summon Swarm"] = {-1,-1,5,200, {"Summonings"}, false, false},
+:    ["Summon Horrible Things"] = {-1,-1,8,200, {"Summonings"}, false, false},
+:    ["Malign Gateway"] = {-1,-1,7,200, {"Summonings", "Translocations"}, true, false},
 :    ["Enslavement"] = {8,8,4,200, {"Hexes"}, true, true},
 :    ["Animate Dead"] = {-1,-1,4,0, {"Necromancy"}, true, false},
 :    ["Control Undead"] = {-1,-1,5,200, {"Hexes", "Necromancy"}, true, true},
 :    ["Animate Skeleton"] = {-1,-1,1,0, {"Necromancy"}, true, false},
 :    ["Borgnjor's Revivification"] = {-1,-1,7,200, {"Necromancy"}, true, false},
-:    ["Summon Elemental"] = {-1,-1,4,200, {"Summoning"}, true, true},
+:    ["Summon Elemental"] = {-1,-1,4,200, {"Summonings"}, true, true},
 :    ["Ozocubu's Refrigeration"] = {-1,-1,5,200, {"Ice Magic"}, true, false},
-:    ["Summon Ice Beast"] = {-1,-1,5,200, {"Ice Magic", "Summoning"}, false, false},
+:    ["Summon Ice Beast"] = {-1,-1,5,200, {"Ice Magic", "Summonings"}, false, false},
 :    ["Repel Missiles"] = {-1,-1,2,200, {"Air Magic", "Charms"}, true, false},
 :    ["Berserker Rage"] = {-1,-1,3,0, {"Charms"}, true, false},
 :    ["Fulsome Distillation"] = {-1,-1,1,0, {"Transmutation", "Necromancy"}, true, false},
@@ -2669,8 +2680,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Cigotuvi's Degeneration"] = {8,8,5,200, {"Transmutation", "Necromancy"}, true, true},
 :    ["Tukima's Dance"] = {-1,-1,3,150, {"Hexes"}, true, false},
 :    ["Tukima's Ball"] = {-1,-1,9,200, {"Hexes"}, true, false}, -- not castable?
-:    ["Summon Demon"] = {-1,-1,5,200, {"Summoning"}, false, false},
-:    ["Summon Greater Demon"] = {-1,-1,7,200, {"Summoning"}, true, false},
+:    ["Summon Demon"] = {-1,-1,5,200, {"Summonings"}, false, false},
+:    ["Summon Greater Demon"] = {-1,-1,7,200, {"Summonings"}, true, false},
 :    ["Corpse Rot"] = {-1,-1,2,0, {"Necromancy"}, true, false},
 :    ["Fire Brand"] = {-1,-1,2,0, {"Fire Magic", "Charms"}, true, false},
 :    ["Freezing Brand"] = {-1,-1,2,0, {"Ice Magic", "Charms"}, true, false},
@@ -2682,7 +2693,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Poison Weapon"] = {-1,-1,3,0, {"Poison Magic", "Charms"}, true, false},
 :    ["Cure Poison"] = {-1,-1,2,200, {"Poison Magic"}, true, false},
 :    ["Resist Poison"] = {-1,-1,4,200, {"Poison Magic", "Charms"}, true, false},
-:    ["Recall"] = {-1,-1,3,0, {"Summoning", "Translocations"}, true, false},
+:    ["Recall"] = {-1,-1,3,0, {"Summonings", "Translocations"}, true, false},
 :    ["Spider Form"] = {-1,-1,3,200, {"Transmutation", "Poison Magic"}, true, false},
 :    ["Blade Hands"] = {-1,-1,5,200, {"Transmutation"}, true, false},
 :    ["Statue Form"] = {-1,-1,6,200, {"Transmutation", "Earth Magic"}, true, false},
@@ -2691,19 +2702,19 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Necromutation"] = {-1,-1,8,200, {"Necromancy", "Transmutation"}, true, false},
 :    ["Death Channel"] = {-1,-1,7,200, {"Necromancy"}, true, true},
 :    ["Deflect Missiles"] = {-1,-1,6,200, {"Air Magic", "Charms"}, true, false},
-:    ["Shadow Creatures"] = {-1,-1,5,0, {"Summoning"}, false, false},
+:    ["Shadow Creatures"] = {-1,-1,5,0, {"Summonings"}, false, false},
 :    ["Confusing Touch"] = {-1,-1,1,200, {"Hexes"}, true, false},
 :    ["Sure Blade"] = {-1,-1,2,200, {"Hexes", "Charms"}, true, false},
 :    ["Passwall"] = {1,1,3,200, {"Transmutation", "Earth Magic"}, true, false},
 :    ["Ignite Poison"] = {-1,-1,5,200, {"Fire Magic", "Transmutation"}, true, false},
 :    ["Sticks to Snakes"] = {-1,-1,2,200, {"Transmutation"}, true, false},
-:    ["Call Canine Familiar"] = {-1,-1,3,200, {"Summoning"}, false, false},
-:    ["Summon Dragon"] = {-1,-1,9,200, {"Summoning"}, false, false},
+:    ["Call Canine Familiar"] = {-1,-1,3,200, {"Summonings"}, false, false},
+:    ["Summon Dragon"] = {-1,-1,9,200, {"Summonings"}, false, false},
 :    ["Enscrolled Hibernation"] = {8,8,2,56, {"Ice Magic", "Hexes"}, true, true},
 :    ["Metabolic Englaciation"] = {-1,-1,7,200, {"Ice Magic", "Hexes"}, true, false},
 :    ["See Invisibile"] = {-1,-1,4,200, {"Charms"}, true, false},
 :    ["Phase Shift"] = {-1,-1,5,200, {"Translocations"}, true, false},
-:    ["Summon Butterflies"] = {-1,-1,1,100, {"Summoning"}, true, false},
+:    ["Summon Butterflies"] = {-1,-1,1,100, {"Summonings"}, true, false},
 :    ["Warp Weapon"] = {-1,-1,5,0, {"Charms", "Translocations"}, true, false},
 :    ["Silence"] = {-1,-1,5,200, {"Air Magic", "Charms"}, true, false},
 :    ["Shatter"] = {-1,-1,9,200, {"Earth Magic"}, false, false},
@@ -2721,7 +2732,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Chain Lightning"] = {-1,-1,7,200, {"Air Magic", "Conjurations"}, true, false},
 :    ["Excrutiating Wounds"] = {-1,-1,5,200, {"Charms", "Necormancy"}, true, false},
 :    ["Portal Projectile"] = {8,8,2,50, {"Translocations"}, true, false},
-:    ["Summon Ugly Thing"] = {-1,-1,6,200, {"Summoning"}, false, false},
+:    ["Summon Ugly Thing"] = {-1,-1,6,200, {"Summonings"}, false, false},
 :    ["Passage of Golubria"] = {8,8,4,0, {"Translocations"}, true, false},
 :  }
 : -- }}}
@@ -2742,6 +2753,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 : end
 
+: function vehumet_supports(spell)
+:   local spellschools = p.spell_info[spell][5]
+:   local vehsupports = { "Shatter","Lee's Rapid Deconstruction", "Sandblast",
+:           "Airstrike", "Tornado", "Freeze", "Ignite Poison",
+:           "Ozocubu's Refrigeration" }
+:   return (util.contains(spellschools, "Conjuration")
+:        or util.contains(spellschools, "Summonings"))
+:        or util.contains(vehsupports, spell)
+: end
+
 : function spell_range(spell, pow)
 :   if not p.spell_info[spell] then
 :     return 0
@@ -2754,19 +2775,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     minrange = minrange + 1
 :     maxrange = maxrange + 1
 :   end
-:   -- this should check that the spell is either conjuration or summoning
-:   -- or that it's shatter, LRD, sandblast, airstrike, tornado, freeze
-:   -- ignite poison, ozo's refrig
-:   -- see godabil.cc 1455
-:   -- but it's close enough anyway
-:   local vehsupports = { "Shatter","Lee's Rapid Deconstruction", "Sandblast",
-:           "Airstrike", "Tornado", "Freeze", "Ignite Poison",
-:           "Ozocubu's Refrigeration" }
-:   local spellschools = p.spell_info[spell][5]
 :   if you.god() == "Vehumet" and you.piety_rank() >= 3
-:       and (util.contains(spellschools, "Conjuration")
-:        or util.contains(spellschools, "Summoning"))
-:       and util.contains(vehsupports, spell)
+:       and vehumet_supports(spell)
 :       and maxrange > 0 and maxrange < 8
 :       and minrange > 0 and minrange < 8
 :       and spell ~= "Sticky Flame" and spell ~= "Freeze" then
@@ -2785,7 +2795,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   ["Poison Magic"]="staff of poison",
 :   ["Earth Magic"]="staff of earth",
 :   ["Conjurations"]="staff of conjuration",
-:   ["Summoning"]="staff of summoning",
+:   ["Summonings"]="staff of summoning",
 :   ["Charms"]="staff of enchantment",
 :   ["Hexes"]="staff of enchantment",
 :  }
@@ -2793,6 +2803,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.school_to_ring = {
 :   ["Ice Magic"]="ring of ice",
 :   ["Fire Magic"]="ring of fire",
+:   ["Wizardry"]="ring of wizardry",
 :  }
 
 : function weilding_staff(school)
@@ -2830,9 +2841,215 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return 0
 : end
 
+: -- nonrand robes aren't included since they all have "robe" in the name
+: -- ac, ev penalty, weight
+: p.armour_info = {
+:   [""]                        = {0,0,0},
+:   ["robe"]                    = {2,0,6},
+:   ["animal skin"]             = {2,0,10},
+:   ["skin of Zhor"]            = {2,0,10},
+:   ["leather"]                 = {3,1,15},
+:   ["salamander hide armour"]  = {3,1,15},
+:   ["ring mail"]               = {4,2,25},
+:   ["scale mail"]              = {5,3,35},
+:   ["chain mail"]              = {6,4,40},
+:   ["banded mail"]             = {7,5,50},
+:   ["splint mail"]             = {8,5,55},
+:   ["plate mail"]              = {10,8,65},
+:   ["Maxwell's patent armour"] = {10,8,65},
+:   ["crystal plate"]           = {14,8,120},
+:   ["troll hide"]              = {2,1,22},
+:   ["troll leather"]           = {4,1,22},
+:   ["steam dragon hide"]       = {2,0,12},
+:   ["steam dragon armour"]     = {4,0,12},
+:   ["mottled dragon hide"]     = {3,1,15},
+:   ["mottled dragon armour"]   = {5,1,15},
+:   ["faerie dragon armour"]    = {5,1,15},
+:   ["swamp dragon hide"]       = {3,2,20},
+:   ["swamp dragon armour"]     = {7,2,20},
+:   ["dragon hide"]             = {3,3,35},
+:   ["dragon armour"]           = {8,3,35},
+:   ["ice dragon hide"]         = {4,3,35},
+:   ["ice dragon armour"]       = {9,3,35},
+:   ["pearl dragon hide"]       = {3,3,40},
+:   ["pearl dragon armour"]     = {10,3,40},
+:   ["storm dragon hide"]       = {4,3,60},
+:   ["storm dragon armour"]     = {10,5,60},
+:   ["gold dragon hide"]        = {4,5,110},
+:   ["gold dragon armour"]      = {11,9,110},
+:   ["armour of the Dragon King"] = {11,9,110},
+: }
+
+: function get_armour_info(armour)
+:   local name = ""
+:   if armour then
+:       name = armour.name()
+:   end
+:   local best = 0
+:   local bestidx = ""
+:   for k,v in pairs(p.armour_info) do
+:       local start, endidx = string.find(name, k)
+:       if start and endidx - start > best then
+:           best = endidx - start
+:           bestidx = k
+:       end
+:   end
+:   return p.armour_info[bestidx]
+: end
+
+: p.shield_info = {
+:   ["buckler"]         = {3,1,90},
+:   ["shield"]          = {8,3,150},
+:   ["large shield"]    = {13,5,230},
+: }
+
+: function get_shield_info(shield)
+:   local name = ""
+:   if shield then
+:       name = shield.name()
+:   end
+:   local best = 0
+:   local bestidx = ""
+:   for k,v in pairs(p.shield_info) do
+:       local start, endidx = string.find(name, k)
+:       if start and endidx - start > best then
+:           best = endidx - start
+:           bestidx = k
+:       end
+:   end
+:   return p.shield_info[bestidx]
+: end
+
+: function adjusted_body_armour_ev_pen()
+:   local base_ev_pen = p.current_armour_info[2]
+:   return ((base_ev_pen
+:           + math.max(0, 3 * base_ev_pen - you.strength()))
+:           * (45 - you.skill("Armour"))
+:           * 100
+:           / 45)
+: end
+
+: function racial_armour_bonus()
+:   local name = ""
+:   if p.armour then
+:       name = p.armour.name()
+:   end
+:   if string.find(you.race(), "elf") and string.find(name, "elven") then
+:       return 250
+:   end
+:   if string.find(you.race(), "dwarf") and string.find(name, "dwarven") then
+:       return 150
+:   end
+:   if string.find(you.race(), "orc") and string.find(name, "orcish") then
+:       return 150
+:   end
+:   if string.find(name, "dwarven") then
+:       return -150
+:   end
+:   return 0
+: end
+
+: p.size_info = {
+:   ["Spriggan"]        = 1, -- little
+:   ["Felid"]           = 1,
+:   ["Halfling"]        = 2, -- small
+:   ["Kobold"]          = 2,
+:   ["Troll"]           = 4, -- large
+:   ["Ogre"]            = 4,
+:   ["Naga"]            = 4,
+:   ["Centaur"]         = 4,
+: }
+: function ev_size_fac()
+:   local size = 3
+:   local z = p.size_info[you.race()]
+:   if z then
+:       size = z
+:   end
+:   return 2 * (3 - size)
+: end
+
+: function adj_shield_ev_pen()
+:   return math.max(0, p.current_shield_info[2] * 100
+:                       - you.skill("Shields") * 100
+:                       / math.max(1, 5 + ev_size_fac()))
+: end
+
+: function armour_shield_spell_penalty()
+:   local body_armour_pen = math.max(25 * adjusted_body_armour_ev_pen()
+:                                    - racial_armour_bonus(), 0)
+:   local penalty = body_armour_pen + 25 * adj_shield_ev_pen() - 20 * 100
+:   return math.floor(math.max(penalty,0)/100)
+: end
+
+: function spell_boost(spell, chance)
+:   local boost = 1
+:   if you.god() == "Vehumet" and you.piety_rank() >= 1 then
+:       boost = boost * 0.67
+:   end
+:   local wiz = wearing_ring("Wizardry")
+:   local wiz_factor = 0.87
+:   for i=1,wiz do
+:       boost = boost * wiz_factor
+:       wiz_factor = wiz_factor + (1 - wiz_factor) / 3
+:   end
+:   crawl.mpr("boost: " .. boost)
+:   return chance * math.max(0.5, boost)
+: end
+
+: -- see spell_fail in spl-cast.cc line 371
+: -- 25 int, 14 spc, 4 sum
+: -- magic dart
+: -- chance = 22
+: -- chance2 = 24
+: -- abjuration
+: -- chance = 60, -30, -80, -29, 6
+: -- chance2 = 6, ..., 30, 20 (apply spc)
+: function spell_fail(spell)
+:   local difficulty = { 3, 15, 35, 70, 100, 150, 200, 260, 330, 420, 500, 600, 750 }
+:   local chance = 60 - (6 * spell_power(spell, true, true))
+:                   - you.intelligence() * 2
+:                   + armour_shield_spell_penalty()
+:                   + difficulty[p.spell_info[spell][3]]
+:--   local chance = 60
+:--   chance = chance - 6 * spell_power(spell, true, true)
+:--   crawl.mpr("chance: " .. chance)
+:--   chance = chance - you.intelligence() * 2
+:--   crawl.mpr("chance: " .. chance)
+:--   chance = chance + armour_shield_spell_penalty()
+:--   crawl.mpr("chance after armour: " .. chance)
+:--   crawl.mpr("lvl: " .. p.spell_info[spell][3])
+:--   chance = chance + difficulty[p.spell_info[spell][3]]
+:--   crawl.mpr("chance after diff: " .. chance)
+:   local chance_breaks = {
+:           {45, 45}, {42, 43}, {38, 41}, {35, 40}, {32, 38}, {28, 36}, {22, 34},
+:           {16, 32}, {10, 30}, {2, 28}, {-7, 26}, {-12, 24}, {-18, 22}, {-24, 20},
+:           {-30, 18}, {-38, 16}, {-46, 14}, {-60, 12}, {-80, 10}, {-100, 8},
+:           {-120, 6}, {-140, 4}, {-160, 2}, {-180, 0}}
+:
+:   local chance2 = chance
+:
+:   for _,v in pairs(chance_breaks) do
+:       if chance < v[1] then
+:           chance2 = v[2]
+:       end
+:   end
+:
+:   if you.transform() == "blade" then
+:       chance2 = chance2 + 20
+:   end
+:   if you.transform() == "spider" then
+:       chance2 = chance2 + 10
+:   end
+:   crawl.mpr("chance2: " .. chance2)
+:
+:   chance2 = spell_boost(spell, chance2)
+:
+:   return math.min(100, chance2)
+: end
+
 : -- spl-cast.cc 435
 : -- this doesn't take negative enhancers into account
-: function spell_power(spell)
+: function spell_power(spell, uncap, noint)
 :   if not p.spell_info[spell] then
 :     return 0
 :   end
@@ -2844,19 +3061,28 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       enhancers = enhancers + wearing_ring(school)
 :       enhancers = enhancers + weilding_staff(school)
 :   end
+:   local cap = p.spell_info[spell][4]
+:   if uncap then
+:       cap = 0
+:   end
+:   local int = you.intelligence()
 :   local pow = spell_power2(you.skill("Spellcasting"), schools,
-:       you.intelligence(), enhancers, p.spell_info[spell][4])
+:       int, enhancers, cap, not noint)
 :   schools = nil
 :   return pow
 : end
 
-: function spell_power2(spellcasting, schools, int, enhancerct, cap)
-:   local power = math.floor(spellcasting / 2)
+: function spell_power2(spellcasting, schools, int, enhancerct, cap, applyint)
+:   local power = 0
 :   local ct = # schools
-:   for k,v in pairs(schools) do
-:     power = power + math.floor(((v * 2) / ct))
+:   for _,v in pairs(schools) do
+:     power = power + v * 2
 :   end
-:   power = math.floor((power * int) / 10)
+:   power = math.floor(power / ct)
+:   power = power + math.floor(spellcasting / 2)
+:   if applyint then
+:       power = math.floor((power * int) / 10)
+:   end
 :   if enhancerct > 0 then
 :       for i=0,enhancerct do
 :           power = power * 15
@@ -3298,8 +3524,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Sticky Flame"
 :   end
 :
-:   if getresist(mi, "Poison Magic") < 1 and not adjacent(x,y)
-:       and threat > 60
+:   if p.cloudtarget
+:       and getresist(mi, "Poison Magic") < 1 and not adjacent(x,y)
+:       and threat > 160
 :       and not m:is(p.MB.confused)
 :       and util.contains(you.spells(),"Mephitic Cloud") then
 :      return "Mephitic Cloud"
@@ -3346,7 +3573,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :         for i,n in pairs(you.spells()) do
 :             local info = p.spell_info[n]
 :             local spellschools = info[5]
-:             if util.contains(spellschools, "Summoning") then
+:             if util.contains(spellschools, "Summonings") then
 :                 crawl.mpr("prefer summon: " .. n)
 :                 return n
 :             end
@@ -3601,6 +3828,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function rangedm()
+:   update_stuff()
 :   ranged(false)
 : end
 
