@@ -751,6 +751,13 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- # checks for changes
 
 : function update_stuff()
+:   if p.last_turn == you.turns() then
+:     if p.move == "rest" then
+:       p.failed_rest = true
+:     end
+:     p.tries = p.tries + 1
+:     return
+:   end
 :   crawl.mpr("update now")
 :   if you.turns() >= 1000*p.dump_count then
 :     p.dump_count = p.dump_count+1
@@ -787,23 +794,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :
 :   p.failed_rest = false
 :
-:   if p.last_turn == you.turns() then
-:     if p.move == "rest" then
-:       p.failed_rest = true
-:     end
-:     p.tries = p.tries + 1
-:   else
-:     update_branch_goal()
-:     p.tries = 0
-:     if can_eat_chunks() then
+:   update_branch_goal()
+:   p.tries = 0
+:   if can_eat_chunks() then
 :       p.travel_goal = "corpses"
-:     else
+:   else
 :       p.travel_goal = "autoexplore"
-:     end
-:     p.last_turn = you.turns()
-:     p.prev_hp = p.last_hp
-:     p.prev_mp = p.last_mp
 :   end
+:   p.last_turn = you.turns()
+:   p.prev_hp = p.last_hp
+:   p.prev_mp = p.last_mp
 :   p.last_hp = new_hp
 :   p.last_mhp = new_mhp
 :   p.last_mp = new_mp
@@ -812,6 +812,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :
 :   update_monsters()
 :   update_cloud()
+:   crawl.mpr("update done")
 : end
 
 : -- ##############################################
@@ -819,13 +820,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- # tactical means at least one non-is_safe monster is in sight
 
 : function choose_move()
+:   crawl.mpr("wat 1")
 :   if c_monsters(8) > 0 then
+:   crawl.mpr("wat 2")
 :     if p.is_berserk then
 :       choose_berserk_tactical()
 :     else
 :       choose_calm_tactical()
 :     end
 :   else
+:   crawl.mpr("wat 3")
 :     if p.is_berserk then
 :       choose_berserk_not_tactical()
 :     else
@@ -966,7 +970,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   elseif you.rotting() and have_potion("healing") then
 :     p.move = "drink potion"
 :     p.potion_choice = "healing"
-:   elseif you.poisoned() and last_hp<5 then
+:   elseif you.poisoned() and p.last_hp<5 then
 :     if have_potion("healing") then
 :       p.move = "drink potion"
 :       p.potion_choice = "healing"
@@ -1100,19 +1104,19 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     flee()
 :   elseif p.move == "attack" then
 :     local melee = melee_ok()
-:     crawl.mpr("melee:"..tostring(melee))
+:     crawl.mpr("melee: "..tostring(melee))
 :     if caster() and p.currentthreat > 3 * you.xl() and melee then
 :       ranged(melee)
 :     else
 :       local x,y,m = get_target()
-:       if string.find(m:desc(), "fleeing") then
+:       if m and string.find(m:desc(), "fleeing") then
 :         -- use ranged attack anyway vs running shit
 :         ranged(melee)
 :       else
 :         if m then
 :           crawl.mpr("melee instead! "..m:desc().." "..x.." "..y)
 :         else
-:           crawl.mpr("melee instead! no target! "..x.." "..y)
+:           crawl.mpr("melee instead! no target!")
 :         end
 :         make_attack(x,y)
 :       end
@@ -2154,6 +2158,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return false
 : end
 
+
 : function wear_ring()
 :   local i
 :   local l
@@ -2799,16 +2804,20 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return 0
 : end
 
+: p.ring_slots = {7,8}
+: p.op_ring_slots = {10,11,12,13,14,15,16,17}
 : function wearing_ring(school)
 :   local ringtype = p.school_to_ring[school]
 :   local count = 0
-:   if (ringtype and items.equipped_at(7) and
-:      string.find(items.equipped_at(7).name(), ringtype)) then
-:      count = count + 1
+:   local ring_slots = p.ring_slots
+:   if you.race() == "Octopode" then
+:       ring_slots = p.op_ring_slots
 :   end
-:   if (ringtype and items.equipped_at(8) and
-:      string.find(items.equipped_at(8).name(), ringtype)) then
-:      count = count + 1
+:   for k,v in pairs(ring_slots) do
+:       if (ringtype and items.equipped_at(v) and
+:           string.find(items.equipped_at(v).name(), ringtype)) then
+:           count = count + 1
+:       end
 :   end
 :   return count
 : end
