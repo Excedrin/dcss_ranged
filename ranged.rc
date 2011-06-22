@@ -7,8 +7,8 @@
 
 # {{{1
 ##### 1- Starting Screen ############################################
-species = DE
-background = FE
+#species = DE
+#background = FE
 weapon = mace
 ##### 2-  File System ###############################################
 
@@ -751,16 +751,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- # checks for changes
 
 : function update_stuff()
-:   if you.turns() == p.last_turn then
-:       return
-:   end
+:   crawl.mpr("update now")
 :   if you.turns() >= 1000*p.dump_count then
 :     p.dump_count = p.dump_count+1
 :     crawl.mpr("dumping in update stuff: " .. p.dump_count)
 :     magic('#')
 :   end
-:
-:   update_branch_goal()
 :
 :   local new_hp, new_mhp = you.hp()
 :   local new_mp, new_mmp = you.mp()
@@ -797,6 +793,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     end
 :     p.tries = p.tries + 1
 :   else
+:     update_branch_goal()
 :     p.tries = 0
 :     if can_eat_chunks() then
 :       p.travel_goal = "corpses"
@@ -804,13 +801,13 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       p.travel_goal = "autoexplore"
 :     end
 :     p.last_turn = you.turns()
-:     p.prev_hp = last_hp
-:     p.prev_mp = last_mp
+:     p.prev_hp = p.last_hp
+:     p.prev_mp = p.last_mp
 :   end
-:   last_hp = new_hp
-:   last_mhp = new_mhp
-:   last_mp = new_mp
-:   last_mmp = new_mmp
+:   p.last_hp = new_hp
+:   p.last_mhp = new_mhp
+:   p.last_mp = new_mp
+:   p.last_mmp = new_mmp
 :   p.last_xl = you.xl()
 :
 :   update_monsters()
@@ -861,17 +858,17 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   else
 :       minmp = 0.7
 :   end
-:   if last_mp > 40 then
+:   if p.last_mp > 40 then
 :       -- absolute minimum would be 12 mp when faced with tiny threats
 :       minmp = minmp - 0.4
-:   elseif last_mp > 30 then
+:   elseif p.last_mp > 30 then
 :       minmp = minmp - 0.2
 :   else
 :       minmp = minmp + 0.1
 :   end
 :   minmp = math.min(minmp, 1)
-:   crawl.mpr("ready to cast: " .. minmp .. " " .. last_mmp * minmp)
-:   return last_mp >= last_mmp * minmp
+:   crawl.mpr("ready to cast: " .. minmp .. " " .. p.last_mmp * minmp)
+:   return p.last_mp >= p.last_mmp * minmp
 : end
 
 : function choose_berserk_tactical()
@@ -962,7 +959,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- should add in better travel here
 : function choose_calm_not_tactical()
 :   crawl.mpr("calm not tactical")
-:   crawl.mpr("p.move: " .. p.move)
+:   crawl.mpr("previous move: " .. p.move)
+:   crawl.mpr("last hp: " .. p.last_hp .. " - ".. p.last_mhp)
 :   if you.poisoned() and can_cure_poison() then
 :     p.move = "cure poison"
 :   elseif you.rotting() and have_potion("healing") then
@@ -980,6 +978,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     elseif have_unknown_potion() then
 :       p.move = "try potion"
 :     else
+:       crawl.mpr("poisoned, resting")
 :       p.move = "rest"
 :     end
 :   elseif (p.last_hp < 3 or p.last_hp*10 < p.last_mhp) and can_hand(false)
@@ -1018,16 +1017,19 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       and not on_corpses() then
 :     p.move = "eat permafood"
 :   elseif p.last_hp < p.last_mhp or you.confused() then
+:     crawl.mpr("confused or low on hp, resting")
 :     p.move = "rest"
-:   elseif last_mp < last_mmp then
-:     if can_sublimate() and last_mp < last_mmp - 2 then
+:   elseif p.last_mp < p.last_mmp then
+:     if can_sublimate() and p.last_mp < p.last_mmp - 2 then
 :       p.move = "sublimate"
 :     else
+:       crawl.mpr("low on mp, resting")
 :       p.move = "rest"
 :     end
 :   elseif is_reasonable_ballisto_attack() then
 :     p.move = "ballisto attack"
 :   elseif you.exhausted() then
+:     crawl.mpr("exhausted, resting")
 :     p.move = "rest"
 :   elseif p.branch_goal == "Lair:1" and can_see_lair() then
 :     p.move = "step towards Lair"
@@ -1098,6 +1100,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     flee()
 :   elseif p.move == "attack" then
 :     local melee = melee_ok()
+:     crawl.mpr("melee:"..tostring(melee))
 :     if caster() and p.currentthreat > 3 * you.xl() and melee then
 :       ranged(melee)
 :     else
@@ -1612,7 +1615,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function read_blink(i)
-:   update_stuff()
+:   --update_stuff()
 :   local l = items.index_to_letter(i)
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
@@ -1840,7 +1843,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : function blink_away()
-:   update_stuff()
+:   --update_stuff()
 :   local x,y = blink_target()
 :   if not (x == 0 and y == 0) then
 :       local line = drawline(0,0,x,y)
@@ -2513,8 +2516,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.hold = true
 : crawl.delay(50)
 : crawl.flush_input()
+: if p.dry == true then
+:   crawl.mpr("would send: " ..command)
+: else
 : crawl.sendkeys(command .. string.char(27) .. string.char(27)
 :     .. string.char(27))
+: end
 : -- why are we doing this?
 : --coroutine.yield(true)
 : p.hold = false
@@ -2568,7 +2575,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   crawl.mpr("gcinfo: "..gcinfo())
 :   update_stuff()
 :   choose_move()
-:   --crawl.mpr("would: " .. p.move)
+:   crawl.mpr("would: " .. p.move)
 :   make_move()
 : end
 
@@ -2616,6 +2623,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Apporation"] = {8,8,1,1000, {"Translocations"}, true, true},
 :    ["Conjure Flame"] = {4,4,3,100, {"Conjurations", "Fire Magic"}, true, false},
 :    ["Dig"] = {8,8,4,200, {"Transmutation", "Earth"}, true, true},
+:    ["Leda's Liquefaction"] = {-1,-1,4,200, {"Transmutation", "Earth Magic"}, true, false},
 :    ["Cause Fear"] = {8,8,5,200, {"Hexes"}, true, false},
 :    ["Slow"] = {8,8,2,200, {"Hexes"}, true, true},
 :    ["Haste"] = {8,8,6,200, {"Charms"}, true, true},
@@ -3253,7 +3261,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if (not checkflags(mi, "undead"))
 :      and (not checkflags(mi, "demonic"))
 :      and (not checkflags(mi, "non-living"))
-:      and last_hp < last_mhp * 0.8
+:      and p.last_hp < p.last_mhp * 0.8
 :      and util.contains(you.spells(),"Vampiric Draining") then
 :      return "Vampiric Draining"
 :   end
@@ -3469,7 +3477,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 :   if not (x == 0 and y == 0) then
 :     local pick, idx = pick_spell(x,y,m,nolof)
-:     if pick then
+:     if pick ~= nil then
 :       crawl.mpr("target at x: " .. x .. " y: " .. y .. " spell: " .. pick)
 :       local spc = "*unknown*"
 :       if p.spell_info[pick][1] == -1 then
@@ -3589,6 +3597,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 
 : -- fallback to melee if moveok is true or we're berserk or not a spellcaster
 : function ranged(moveok)
+:   crawl.mpr("ranged: " .. tostring(moveok))
 :   local x,y,m = get_target(true)
 :   if p.is_berserk or not caster() then
 :     make_attack(x,y)
@@ -3603,13 +3612,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     if not moveok then
 :        return
 :     end
-:     --crawl.mpr("ranged 4")
 :     -- didn't cast, see if we should get closer
 :     crawl.mpr("check move target at x: " .. x .. " y: " .. y)
-:     if (dist > 3 or safe_approach(x,y)) then
-:       crawl.mpr("moving closer: (" .. x .. "," .. y .. "), " .. dist)
+:--     if (dist > 3 or safe_approach(x,y)) then
+:--       crawl.mpr("moving closer: (" .. x .. "," .. y .. "), " .. dist)
 :       make_attack(x,y)
-:     end
+:--     end
 :   else
 :     local x,y,m = get_target(false)
 :     if m and (summoner() or have_smite()) then
