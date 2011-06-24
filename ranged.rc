@@ -630,24 +630,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- some tables:
 
 : p = {}
-: p.priority_monsters = {"ice beast","orc warrior","'s ghost",
-: "Sigmund","Menkaure","hill giant","Pikel","war dog","orc priest",
-: "orc wizard","Prince Ribbit","blink frog","Edmund","Nessos","Maud",
-: "Grinder","Erolcha","Rupert","electric eel","Yiuf","ogre","troll",
-: "Dowan","Duvessa","Nessos","giant eyeball","fire drake","dragon",
-: "Sonja","berserk","spiny frog","Erica","Jozef","Harold","jelly","wasp"}
-: p.scary_monsters = {"hydra","statue","Nessos","Nikola","Sonja"}
-: p.hard_monsters = {"ice beast","orc warrior","'s ghost","Sigmund",
-: "Menkaure","hill giant","Pikel","war dog","orc priest","Edmund",
-: "Nessos","Maud","Erolcha","Rupert","goliath","electric eel","Yiuf",
-: "ogre","troll","Duvessa","fire drake","dragon","berserk",
-: "spiny frog","dire elephant","Erica","Jozef","Harold","jelly","red wasp"}
 : p.hand_monsters = {"Grinder","Erolcha","Rupert"}
 : p.no_flee_monsters = {"orc priest","Sigmund","electric eel",
 : "Dowan","berserk","giant eyeball","centaur","Nessos","fire drake",
 : "yaktaur","dragon","Blork","killer bee","Joseph","Erica","orc wizard"}
-: p.easy_monsters = {"green rat","porcupine","quokka","megabat","fleeing"}
-: p.resistance_monsters = {"fire drake","Nikola"}
 
 : -- some variables:
 
@@ -698,6 +684,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : p.bestidx = nil
 : p.best2idx = nil -- clear LOF to this one
 : p.cloudtarget = nil
+
+: p.lastcast = { "", 0, 0, you.turns() }
 
 : p.currentmonsters = {}
 : p.currentthreat = 0
@@ -1088,19 +1076,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return math.floor(p.currentthreat / approxstr)
 : end
 
-: function assess_danger_old()
-:   if (c_ignore_spec_monsters(8,p.easy_monsters) > 6 and c_monsters(4) > 0)
-:      or c_spec_monsters(4, p.scary_monsters) > 0 then
-:     return 2
-:   elseif (c_monsters(2) > 0 and c_monsters(8) > 3)
-: or (c_ignore_spec_monsters(4,p.easy_monsters) > 0 and p.last_hp*2 < p.last_mhp)
-: or c_spec_monsters(2, p.hard_monsters) > 0 then
-:     return 1
-:   else
-:  return 0
-:   end
-: end
-
 : -- #######################################
 : -- # function that actually executes the move
 
@@ -1358,8 +1333,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 : end
 
-: p.lof_ok = {"lava", "deep_water", "shallow_water", "floor", "open_door", "trap",
-: "enter", "exit", "altar", "stairs", "return", "fountain", "shop"}
+: p.lof_ok = {"lava", "deep_water", "shallow_water", "floor", "open_door",
+: "trap", "enter", "exit", "altar", "stairs", "return", "fountain", "shop"}
 
 : function feature_lof(f)
 :   return contains_string_in(f, p.lof_ok)
@@ -1428,7 +1403,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local m = v[1]
 :       local x = v[2]
 :       local y = v[3]
-:       local mi = get_mon_info(m) --monster_info[m:type()]
+:       local mi = get_mon_info(m)
 :       local threat = getthreat(mi, m, x, y)
 :       table.insert(v, threat)
 :       p.currentthreat = p.currentthreat + threat
@@ -1462,7 +1437,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function c_adjmons(i,j,f)
 :   local function count(x,y,r,a)
 :       a = a or 0
-:       if monster.get_monster_at(x+i, y+j) then
+:       local m = monster.get_monster_at(x+i, y+j)
+:       if m and not m:is_safe() then
 :           a = a + 1
 :       end
 :       return a
@@ -1475,7 +1451,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return range * range + 1 >= spl_dist(x,y)
 : end
 
-
 : function best_cloud_center(r, spell, pow)
 :   local a = a or {0, 0, 0}
 :   for x = -r,r do
@@ -1485,6 +1460,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :               if adj > a[1]
 :                   or (adj == a[1]
 :                   and travel_distance(a[2],a[3]) < travel_distance(x,y))
+:                   or (adj == a[1] and crawl.random2(2) == 1)
 :               then
 :                   a[1] = adj
 :                   a[2] = x
@@ -1516,32 +1492,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       end
 :   end
 :   return x,y,m
-: end
-
-: function get_target_old()
-:   local r = monster_distance()
-:   if r == 10 then
-:     return 0, 0
-:   end
-:   local x, y
-:     for x = -r,r do
-:       for y = -r,r do
-:         m = monster.get_monster_at(x, y)
-:         if m and contains_string_in(m:desc(),p.priority_monsters)
-:           and (not m:is_safe() or m:is(p.MB.confused)) and you.see_cell_no_trans(x,y) then
-:           return x, y, m
-:         end
-:       end
-:     end
-:     for x = -r,r do
-:       for y = -r,r do
-:         m = monster.get_monster_at(x, y)
-:         if m and (not m:is_safe() or m:is(p.MB.confused)) and you.see_cell_no_trans(x,y) then
-:           return x, y, m
-:         end
-:       end
-:     end
-:   return 0, 0
 : end
 
 : function get_ballisto_target()
@@ -2898,6 +2848,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : p.shield_info = {
+:   [""]                = {0,0,0},
 :   ["buckler"]         = {3,1,90},
 :   ["shield"]          = {8,3,150},
 :   ["large shield"]    = {13,5,230},
@@ -3005,7 +2956,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- chance = 60, -30, -80, -29, 6
 : -- chance2 = 6, ..., 30, 20 (apply spc)
 : function spell_fail(spell)
-:   local difficulty = { 3, 15, 35, 70, 100, 150, 200, 260, 330, 420, 500, 600, 750 }
+:   local difficulty = { 3, 15, 35, 70, 100, 150, 200, 260, 330, 420, 
+:                        500, 600, 750 }
+:   --crawl.mpr("spell fail: " .. spell)
 :   local chance = 60 - (6 * spell_power(spell, true, true))
 :                   - you.intelligence() * 2
 :                   + armour_shield_spell_penalty()
@@ -3020,11 +2973,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :--   crawl.mpr("lvl: " .. p.spell_info[spell][3])
 :--   chance = chance + difficulty[p.spell_info[spell][3]]
 :--   crawl.mpr("chance after diff: " .. chance)
+:--   crawl.mpr("chance: " .. chance)
 :   local chance_breaks = {
-:           {45, 45}, {42, 43}, {38, 41}, {35, 40}, {32, 38}, {28, 36}, {22, 34},
-:           {16, 32}, {10, 30}, {2, 28}, {-7, 26}, {-12, 24}, {-18, 22}, {-24, 20},
-:           {-30, 18}, {-38, 16}, {-46, 14}, {-60, 12}, {-80, 10}, {-100, 8},
-:           {-120, 6}, {-140, 4}, {-160, 2}, {-180, 0}}
+:     {45, 45}, {42, 43}, {38, 41}, {35, 40}, {32, 38}, {28, 36}, {22, 34},
+:     {16, 32}, {10, 30}, {2, 28}, {-7, 26}, {-12, 24}, {-18, 22}, {-24, 20},
+:     {-30, 18}, {-38, 16}, {-46, 14}, {-60, 12}, {-80, 10}, {-100, 8},
+:     {-120, 6}, {-140, 4}, {-160, 2}, {-180, 0}}
 :
 :   local chance2 = chance
 :
@@ -3131,17 +3085,18 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   return minhp, maxhp
 : end
 
-: p.ugly_color_to_elem = {["red"] = {"fire", "fire", "sticky_flame"},
-:  ["brown"] = {"acid", "acid"},
-:  ["green"] = {"poison_nasty", nil, "poison"},
-:  ["cyan"] = {"elec", "elec"},
-:  ["magenta"] = {"disease", nil, "rot"},
-:  ["white"] = {"cold", "cold"},
+: p.ugly_color_to_elem = {
+:   ["red"] = {"fire", "fire", "sticky_flame"},
+:   ["brown"] = {"acid", "acid"},
+:   ["green"] = {"poison_nasty", nil, "poison"},
+:   ["cyan"] = {"elec", "elec"},
+:   ["magenta"] = {"disease", nil, "rot"},
+:   ["white"] = {"cold", "cold"},
 : }
 : p.very_ugly_upgrade = {
-: ["red"] = "napalm",
-: ["green"] = "poison_medium",
-: ["magenta"] = "rot",
+:   ["red"] = "napalm",
+:   ["green"] = "poison_medium",
+:   ["magenta"] = "rot",
 : }
 : function make_ugly_mi(m)
 :   --crawl.mpr("make ugly: " .. m:desc())
@@ -3192,6 +3147,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   mi.hplow, mi.hphigh = hit_points(mi.hd, undead[1], undead[2])
 :   mi.name = string.format(undead[3], monster_info[mbase].name)
 :   local mr = mi.resists.magic
+:   mi.flags = util.copy_table(monster_info[mtype].flags)
 :   if mtype == 392 then mr = 5000 end -- spectral stuff is magic immune
 :   mi.resists = util.copy_table(monster_info[mtype].resists)
 :   mi.resists.magic = mr
@@ -3277,18 +3233,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if not mi then
 :       mi = mon_byname(name)
 :   end
-:   local undead = {"zombie", "skeleton"}
-:   if mi and contains_string_in(name, undead) then
-:       for k,v in pairs(undead) do
-:           name = string.gsub(name, v)
-:       end
-:       local mi2 = mon_byname(name)
-:       crawl.mpr("mon info for undead (" .. name .. ") " .. mi2.name)
-:   end
 :   if not mi then
 :       crawl.mpr("couldn't find mon info for (" .. name .. ") " .. m:type())
 :   end
-:   crawl.mpr("mon info for (" .. name .. ") " .. mi.name)
+:   --crawl.mpr("mon info for (" .. name .. ") " .. mi.name)
 :   return mi
 : end
 
@@ -3349,6 +3297,9 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :             local mult = 1
 :             if v.type ~= "plain" then
 :                 mult = 3
+:             end
+:             if v.type == "vampiric" then
+:                 mult = 6
 :             end
 :             s = s + v.dam
 :         end
@@ -3481,7 +3432,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function overallthreat(monsters)
 :   local sumthreat = 0
 :   for k,v in pairs(monsters) do
-:       local smi = get_mon_info(v[1]) --monster_info[m:type()]
+:       local smi = get_mon_info(v[1])
 :       sumthreat = sumthreat + getthreat(smi, v[1], v[2], v[3])
 :   end
 :   return sumthreat
@@ -3524,37 +3475,46 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Sticky Flame"
 :   end
 :
-:   if p.cloudtarget
-:       and getresist(mi, "Poison Magic") < 1 and not adjacent(x,y)
-:       and threat > 160
-:       and not m:is(p.MB.confused)
-:       and util.contains(you.spells(),"Mephitic Cloud") then
-:      return "Mephitic Cloud"
-:   end
-:
 :   if # p.currentmonsters > 4
 :       and ((p.currentthreat > 500) or spell_hunger("Tornado") <= 0)
 :       and util.contains(you.spells(),"Tornado") then
 :      return "Tornado"
 :   end
 :
-:   -- not sure how to avoid getting poisoned other than actually figuring
-:   -- out how many squares it will fill, trying distance for now
-:   -- targeting for this won't be optimal either
-:   if p.cloudtarget
-:       and p.cloudtarget[1] > 1
-:       and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
-:       and getresist(mi, "Poison Magic") < 1
-:       and not m:is(p.MB.poisoned)
-:       and util.contains(you.spells(),"Poisonous Cloud") then
-:      return "Poisonous Cloud"
-:   end
-:   if p.cloudtarget
-:       and p.cloudtarget[1] > 1
-:       and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
-:       and getresist(mi, "Ice Magic") < 1
-:       and util.contains(you.spells(),"Freezing Cloud") then
-:      return "Freezing Cloud"
+:   crawl.mpr("lastcast: " .. p.lastcast[1] .. " " .. p.lastcast[4] + 5)
+:   local lastcloud = string.find(p.lastcast[1], "Cloud")
+:   if not lastcloud or (lastcloud and p.lastcast[4] + 5 < you.turns())
+:       then
+:       crawl.mpr("consider clouds")
+:       -- not sure how to avoid getting poisoned other than actually figuring
+:       -- out how many squares it will fill, trying distance for now
+:       -- targeting for this won't be optimal either
+:       if p.cloudtarget
+:           and p.cloudtarget[1] > 1
+:           and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:           and getresist(mi, "Poison Magic") < 1
+:           and not m:is(p.MB.poisoned)
+:           and util.contains(you.spells(),"Poisonous Cloud") then
+:          return "Poisonous Cloud"
+:       end
+:
+:       if p.cloudtarget
+:           and getresist(mi, "Poison Magic") < 1
+:           and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 2
+:           and threat > 360
+:           and mi.hd <= 15
+:           and not m:is(p.MB.confused)
+:           and util.contains(you.spells(),"Mephitic Cloud") then
+:          return "Mephitic Cloud"
+:       end
+:
+:       if p.cloudtarget
+:           and p.cloudtarget[1] > 1
+:           and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:           and getresist(mi, "Ice Magic") < 1
+:           and util.contains(you.spells(),"Freezing Cloud") then
+:          return "Freezing Cloud"
+:       end
 :   end
 :   -- p.currentmonsters
 :   if p.cloudtarget
@@ -3620,14 +3580,13 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if not m then
 :     return nil, -1
 :   end
-:   local mi = get_mon_info(m) --monster_info[m:type()]
+:   local mi = get_mon_info(m)
 :   local pref
 :   local threat = 0
 :   if mi then
-:     crawl.mpr("mons:" .. m:type() .. " " .. mi.name)
 : --    crawl.mpr(table_to_string(mi.resists))
 :     threat = getthreat(mi, m, x, y)
-:     crawl.mpr("threat: " .. threat)
+:     crawl.mpr("mons: " .. mi.name .. " " .. threat)
 :     pref = prefer_spell(mi, m, x, y, threat)
 :     if pref then
 :       crawl.mpr("preferred: " .. pref)
@@ -3636,6 +3595,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :     crawl.mpr("mons:" .. m:type() .. " has no monster info!")
 :   end
 :   -- crawl.mpr("prefer: " .. tostring(pref))
+:
 :   local options = {} -- index, power, target resists, spell level
 :   local dist = spl_dist(x,y)
 :   for i,n in pairs(you.spells()) do
@@ -3661,16 +3621,19 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           then
 :         -- got enough mp and it's in range
 :         -- crawl.mpr("castable: " .. n)
-:         options[n] = { i, pow, 0, info[3], spell_hunger(i) }
+:         local fail = spell_fail(n)
+:         crawl.mpr("fail: " .. fail)
+:         options[n] = { i, pow, 0, info[3], spell_hunger(i), fail }
 :         for k,v in pairs(spellschools) do
 :           if p.school_to_resist[v] then
 : --            crawl.mpr("res: " .. p.school_to_resist[v])
-:             options[n] = { i, pow, getresist(mi, v), info[3], spell_hunger(i) }
+:             options[n] = { i, pow, getresist(mi, v), info[3],
+:                            spell_hunger(i), fail }
 :           end
 :         end
 :         if pref == n then -- ignore resists and hunger
 :            crawl.mpr("prefer: " .. n)
-:            options[n] = { i, pow + 40, 0, info[3], 0 }
+:            options[n] = { i, pow + 40, 0, info[3], 0, fail }
 :         end
 :       end
 :     end
@@ -3681,7 +3644,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   for k,v in pairs(options) do
 :     local x = v[2] - 20 * v[3] + (30 * v[4] - v[5])
 :     crawl.mpr(k .. ": " .. x)
-:     if x > best then
+:     if x > best and v[6] <= 35 then -- 35 is very good, <= 28 is great
 :       best = x
 :       bestk = k
 :     end
@@ -3714,13 +3677,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   if not (x == 0 and y == 0) then
 :     local pick, idx = pick_spell(x,y,m,nolof)
 :     if pick ~= nil then
+:       p.lastcast = { pick, x, y, you.turns() }
 :       crawl.mpr("target at x: " .. x .. " y: " .. y .. " spell: " .. pick)
 :       local spc = "*unknown*"
 :       if p.spell_info[pick][1] == -1 then
 :         spc = "z" .. string.char(96 + idx)
 :       else
 :         if p.cloudtarget
-:           and util.contains({"Poisonous Cloud", "Freezing Cloud", "Fireball"}, pick) then
+:           -- to exclude Meph:
+:           -- {"Poisonous Cloud", "Freezing Cloud","Fireball"}
+:           and contains_string_in(pick, {"Cloud", "Fireball"}) then
 :           x = p.cloudtarget[2]
 :           y = p.cloudtarget[3]
 :         end
@@ -3773,7 +3739,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local x = v[2]
 :       local y = v[3]
 :       local threat = v[4]
-:       local mi = get_mon_info(m) --monster_info[m:type()]
+:       local mi = get_mon_info(m)
 :       local dist = travel_distance(x,y)
 :       if m then
 :           local hpest1 = mi.hphigh * p.mdam[m:damage_level()-1]
@@ -3792,6 +3758,14 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :                   table.insert(lst, attack.dam.."("..attack.type..")")
 :               end
 :               outstr = outstr .. table.concat(lst, ", ")
+:           end
+:           if mi.flags then
+:               outstr = outstr .. " flags: "
+:               local reslst = {}
+:               for k,v in pairs(mi.flags) do
+:                   table.insert(reslst, k .. "=" .. v)
+:               end
+:               outstr = outstr .. table.concat(reslst, ", ")
 :           end
 :           if mi.resists then
 :               outstr = outstr .. " resists: "
