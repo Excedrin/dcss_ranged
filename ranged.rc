@@ -1829,20 +1829,37 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : function make_random_move()
 :   local x = crawl.random2(3)-1
 :   local y = crawl.random2(3)-1
-:   if can_move(x,y) then
-:     magic(delta_to_vi(x, y))
-:   elseif x == 0 and y == 0 then
-:     magic('s')
-:   else
-:     make_random_move()
+:   while (x == 0 and y == 0) or not can_move(x,y) do
+:       x = crawl.random2(3)-1
+:       y = crawl.random2(3)-1
 :   end
+:   magic(delta_to_vi(x, y))
 : end
 
 : function chopandeat()
-:   if (have_chunks(false) or on_chunks()) and can_eat_chunks() then
+:   local corpses = on_corpses()
+:   if you.race() == "Vampire" then 
+:       if corpses then
+:           --crawl.sendkeys('e')
+:           if not food.dangerous(corpses) and food.eat(corpses) then
+:               crawl.mpr("ate")
+:           end
+:           local corpses = on_corpses()
+:           local name = corpses.name()
+:           items.pickup(corpses)
+:           for _,v in pairs(items.inventory()) do
+:               if v.name() == name then
+:                   local letter = items.index_to_letter(v.slot)
+:                   magic('{' .. letter .. "rot\rd" .. letter)
+:               end
+:           end
+:       else
+:           findcorpses()
+:       end
+:   elseif (have_chunks(false) or on_chunks()) and can_eat_chunks() then
 :     magic('ee')
 :   else -- get some chunks
-:     if on_corpses() then
+:     if corpses then
 :       magic('cy')
 :     else
 :       findcorpses()
@@ -1926,10 +1943,25 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   for it in iter.invent_iterator:new(fl) do
 :     if string.find(it.name(),"corpse")
 :         and not string.find(it.name(),"rotting") then
-:       return true
+:       return it
 :     end
 :   end
-:   return false
+:   return nil
+: end
+
+: function food_info()
+:   local fl = you.floor_items()
+:   for it in iter.invent_iterator:new(fl) do
+:     if string.find(it.name(),"corpse") then
+:       crawl.mpr("can_eat: " .. tostring(food.can_eat(it)))
+:       crawl.mpr("dangerous: " .. tostring(food.dangerous(it)))
+:       crawl.mpr("isfruit: " .. tostring(food.isfruit(it)))
+:       crawl.mpr("ischunk: " .. tostring(food.ischunk(it)))
+:       crawl.mpr("eat: " .. tostring(food.eat(it)))
+:       crawl.mpr("rotting: " .. tostring(food.rotting(it)))
+:       crawl.mpr("do_eat: " .. tostring(food.do_eat(it)))
+:     end
+:   end
 : end
 
 : function on_dangerous_corpse()
@@ -2568,6 +2600,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Sandblast"] = {2,2,1,50, {"Earth Magic"}, false, true},
 :    ["Iron Shot"] = {5,5,6,200, {"Earth Magic", "Conjurations"}, false, true},
 :    ["Lehudib's Crystal Spear"] = {4,4,8,200, {"Earth Magic", "Conjurations"}, false, true},
+:    ["Freeze"] = {1,1,1,25, {"Ice Magic"}, false, true}, -- XXX: check that power is right
+:    ["Ozocubu's Armour"] = {-1,-1,3,200, {"Ice Magic"}, true, false}, -- XXX: check that power is right
 :    ["Throw Frost"] = {8,8,2,50, {"Ice Magic", "Conjurations"}, false, true},
 :    ["Throw Icicle"] = {6,6,4,100, {"Ice Magic", "Conjurations"}, false, true},
 :    ["Bolt of Cold"] = {7,7,6,200, {"Ice Magic", "Conjurations"}, false, true},
@@ -3309,7 +3343,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   end
 :   if mi.spells and # mi.spells > 0 then
 :     if mon_has_spell(mi, "smiting") then
-:         local smitethreat = 3000 / last_hp
+:         local smitethreat = 3000 / p.last_hp
 :         if smitethreat < 10 then
 :             smitethreat = math.max(10, smitethreat)
 :         end
@@ -3622,7 +3656,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :         -- got enough mp and it's in range
 :         -- crawl.mpr("castable: " .. n)
 :         local fail = spell_fail(n)
-:         crawl.mpr("fail: " .. fail)
 :         options[n] = { i, pow, 0, info[3], spell_hunger(i), fail }
 :         for k,v in pairs(spellschools) do
 :           if p.school_to_resist[v] then
@@ -3643,15 +3676,15 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local bestk = nil
 :   for k,v in pairs(options) do
 :     local x = v[2] - 20 * v[3] + (30 * v[4] - v[5])
-:     crawl.mpr(k .. ": " .. x)
+:     crawl.mpr(k .. ": " .. x .. " fail: " .. v[6])
 :     if x > best and v[6] <= 35 then -- 35 is very good, <= 28 is great
 :       best = x
 :       bestk = k
 :     end
 :   end
-:   --crawl.mpr( "best: " .. bestk .. ": " .. best )
 :   local spellidx = -1
 :   if bestk and options[bestk] then
+:      crawl.mpr( "best: " .. bestk .. ": " .. best )
 :      spellidx = options[bestk][1]
 :   end
 :   options = nil
@@ -3809,6 +3842,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : -- fallback to melee if moveok is true or we're berserk or not a spellcaster
 : function ranged(moveok)
 :   crawl.mpr("ranged: " .. tostring(moveok))
+: -- this needs to attempt to pick a spell for each possible target,
+: -- then pick the best target and spell combo instead of picking the most
+: -- threatening target and then a spell. The way it is now, if it picks a
+: -- target that's out of range for all possible spells, it switches to melee,
+: -- which might allow a weak monster lots of free hits while it walks towards
+: -- the big scary monster.
 :   local x,y,m = get_target(true)
 :   if p.is_berserk or not caster() then
 :     make_attack(x,y)
