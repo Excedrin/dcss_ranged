@@ -1840,17 +1840,23 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local corpses = on_corpses()
 :   if you.race() == "Vampire" then 
 :       if corpses then
+:           local name1 = corpses.name()
 :           --crawl.sendkeys('e')
-:           if not food.dangerous(corpses) and food.eat(corpses) then
-:               crawl.mpr("ate")
+:           if not food.dangerous(corpses) then
+:               magic('ee')
 :           end
 :           local corpses = on_corpses()
-:           local name = corpses.name()
-:           items.pickup(corpses)
-:           for _,v in pairs(items.inventory()) do
-:               if v.name() == name then
-:                   local letter = items.index_to_letter(v.slot)
-:                   magic('{' .. letter .. "rot\rd" .. letter)
+:           crawl.mpr("corpses: " .. corpses.name())
+:           if corpses then
+:               local name2 = corpses.name()
+:               if name1 == name2 then
+:                   items.pickup(corpses)
+:                   for _,v in pairs(items.inventory()) do
+:                       if v.name() == name2 then
+:                           local letter = items.index_to_letter(v.slot)
+:                           magic('{' .. letter .. "rot\rd" .. letter)
+:                       end
+:                   end
 :               end
 :           end
 :       else
@@ -2297,6 +2303,16 @@ note_monsters = orb of fire, ancient lich, Sigmund
 : end
 
 : p.berserk_ok = not caster()
+: p.summon_ok = summoner()
+
+: function toggle_summon()
+:   p.summon_ok = not p.summon_ok
+:   local s = "not "
+:   if p.summon_ok then
+:     s = ""
+:   end
+:   crawl.mpr("summoning is " .. s .. "ok")
+: end
 
 : function toggle_berserk()
 :   p.berserk_ok = not p.berserk_ok
@@ -2600,8 +2616,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Sandblast"] = {2,2,1,50, {"Earth Magic"}, false, true},
 :    ["Iron Shot"] = {5,5,6,200, {"Earth Magic", "Conjurations"}, false, true},
 :    ["Lehudib's Crystal Spear"] = {4,4,8,200, {"Earth Magic", "Conjurations"}, false, true},
-:    ["Freeze"] = {1,1,1,25, {"Ice Magic"}, false, true}, -- XXX: check that power is right
-:    ["Ozocubu's Armour"] = {-1,-1,3,200, {"Ice Magic"}, true, false}, -- XXX: check that power is right
+:    ["Freeze"] = {1,1,1,25, {"Ice Magic"}, false, true},
+:    ["Ozocubu's Armour"] = {-1,-1,3,200, {"Ice Magic"}, true, false},
 :    ["Throw Frost"] = {8,8,2,50, {"Ice Magic", "Conjurations"}, false, true},
 :    ["Throw Icicle"] = {6,6,4,100, {"Ice Magic", "Conjurations"}, false, true},
 :    ["Bolt of Cold"] = {7,7,6,200, {"Ice Magic", "Conjurations"}, false, true},
@@ -2667,9 +2683,10 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Summon Demon"] = {-1,-1,5,200, {"Summonings"}, false, false},
 :    ["Summon Greater Demon"] = {-1,-1,7,200, {"Summonings"}, true, false},
 :    ["Corpse Rot"] = {-1,-1,2,0, {"Necromancy"}, true, false},
-:    ["Fire Brand"] = {-1,-1,2,0, {"Fire Magic", "Charms"}, true, false},
-:    ["Freezing Brand"] = {-1,-1,2,0, {"Ice Magic", "Charms"}, true, false},
-:    ["Lethal Infusion"] = {-1,-1,2,0, {"Necromancy", "Charms"}, true, false},
+:    ["Fire Brand"] = {-1,-1,2,200, {"Fire Magic", "Charms"}, true, false},
+:    ["Freezing Brand"] = {-1,-1,2,200, {"Ice Magic", "Charms"}, true, false},
+:    ["Lethal Infusion"] = {-1,-1,2,200, {"Necromancy", "Charms"}, true, false},
+:    ["Excruciating Wounds"] = {-1,-1,5,200, {"Necromancy", "Charms"}, true, false},
 :    ["Swiftness"] = {-1,-1,2,200, {"Air Magic", "Charms"}, true, false},
 :    ["Flight"] = {-1,-1,4,200, {"Air Magic", "Charms"}, true, false},
 :    ["Insulation"] = {-1,-1,4,200, {"Air Magic", "Charms"}, true, false},
@@ -2714,7 +2731,6 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Simulacrum"] = {-1,-1,6,200, {"Ice Magic", "Necromancy"}, true, false},
 :    ["Conjure Ball Lightning"] = {-1,-1,7,200, {"Air Magic", "Conjurations"}, true, false},
 :    ["Chain Lightning"] = {-1,-1,7,200, {"Air Magic", "Conjurations"}, true, false},
-:    ["Excrutiating Wounds"] = {-1,-1,5,200, {"Charms", "Necormancy"}, true, false},
 :    ["Portal Projectile"] = {8,8,2,50, {"Translocations"}, true, false},
 :    ["Summon Ugly Thing"] = {-1,-1,6,200, {"Summonings"}, false, false},
 :    ["Passage of Golubria"] = {8,8,4,0, {"Translocations"}, true, false},
@@ -3124,13 +3140,13 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   ["brown"] = {"acid", "acid"},
 :   ["green"] = {"poison_nasty", nil, "poison"},
 :   ["cyan"] = {"elec", "elec"},
-:   ["magenta"] = {"disease", nil, "rot"},
+:   ["purple"] = {"disease", nil, "rot"},
 :   ["white"] = {"cold", "cold"},
 : }
 : p.very_ugly_upgrade = {
 :   ["red"] = "napalm",
 :   ["green"] = "poison_medium",
-:   ["magenta"] = "rot",
+:   ["purple"] = "rot",
 : }
 : function make_ugly_mi(m)
 :   --crawl.mpr("make ugly: " .. m:desc())
@@ -3525,7 +3541,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       -- targeting for this won't be optimal either
 :       if p.cloudtarget
 :           and p.cloudtarget[1] > 1
-:           and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:           and (travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 4
+:               or you.res_poison() > 0)
 :           and getresist(mi, "Poison Magic") < 1
 :           and not m:is(p.MB.poisoned)
 :           and util.contains(you.spells(),"Poisonous Cloud") then
@@ -3534,7 +3551,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :
 :       if p.cloudtarget
 :           and getresist(mi, "Poison Magic") < 1
-:           and travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 2
+:           and (travel_distance(p.cloudtarget[2],p.cloudtarget[3]) > 2
+:               or you.res_poison() > 0)
 :           and threat > 360
 :           and mi.hd <= 15
 :           and not m:is(p.MB.confused)
@@ -3559,7 +3577,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :      return "Fireball"
 :   end
 :
-:   if summoner() then
+:   if summoner() and p.summon_ok then
 :     local summons = l_summons(8)
 :     local sumpower = overallthreat(summons)
 :     crawl.mpr("Summons threat: " .. sumpower)
@@ -3649,9 +3667,12 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :       local pow = spell_power(n)
 :       local range = spell_range(n, pow)
 :       local wtf = range * range + 1
+:       local is_summon = util.contains(spellschools, "Summonings")
+:
 :       -- crawl.mpr("wtf: " .. wtf)
 :       if you.mp() >= info[3] and (info[1] == -1 or wtf >= dist)
 :           and (threat > 50 or info[3] <= 4) -- no big spells for weak crap
+:           and (not is_summon or (is_summon and p.summon_ok))
 :           then
 :         -- got enough mp and it's in range
 :         -- crawl.mpr("castable: " .. n)
@@ -3675,7 +3696,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :   local best = 0
 :   local bestk = nil
 :   for k,v in pairs(options) do
-:     local x = v[2] - 20 * v[3] + (30 * v[4] - v[5])
+:     -- spell, power, target resists, level, hunger, failure
+:     local x = v[2] - 20 * v[3] -- + (10 * v[4] - v[5] - (v[6] / 2))
 :     crawl.mpr(k .. ": " .. x .. " fail: " .. v[6])
 :     if x > best and v[6] <= 35 then -- 35 is very good, <= 28 is great
 :       best = x
@@ -3795,8 +3817,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :           if mi.flags then
 :               outstr = outstr .. " flags: "
 :               local reslst = {}
-:               for k,v in pairs(mi.flags) do
-:                   table.insert(reslst, k .. "=" .. v)
+:               for _,v in pairs(mi.flags) do
+:                   table.insert(reslst, v)
 :               end
 :               outstr = outstr .. table.concat(reslst, ", ")
 :           end
