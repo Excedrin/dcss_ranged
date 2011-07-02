@@ -2734,6 +2734,8 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Portal Projectile"] = {8,8,2,50, {"Translocations"}, true, false},
 :    ["Summon Ugly Thing"] = {-1,-1,6,200, {"Summonings"}, false, false},
 :    ["Passage of Golubria"] = {8,8,4,0, {"Translocations"}, true, false},
+:    ["Shroud of Golubria"] = {-1,-1,2,200, {"Translocations"}, true, false},
+:    ["Inner Flame"] = {8,8,3,200, {"Hexes", "Fire Magic"}, true, false},
 :  }
 : -- }}}
 
