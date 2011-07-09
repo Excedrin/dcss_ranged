@@ -2645,6 +2645,7 @@ note_monsters = orb of fire, ancient lich, Sigmund
 :    ["Haste"] = {8,8,6,200, {"Charms"}, true, true},
 :    ["Petrify"] = {8,8,4,200, {"Transmutation", "Earth Magic"}, true, true},
 :    ["Confuse"] = {8,8,3,200, {"Hexes"}, true, true},
+:    ["Invisibility"] = {-1,-1,6,200, {"Hexes"}, true, true},
 :    ["Controlled Blink"] = {-1,-1,7,0, {"Translocations"}, true, true},
 :    ["Ring of Flames"] = {-1,-1,7,200, {"Charms", "Fire Magic"}, false, false},
 :    ["Olgreb's Toxic Radiance"] = {-1,-1,4,200, {"Poison"}, false, false},
